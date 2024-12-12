@@ -1,101 +1,118 @@
-# CRISPR_Pipeline
+# CRISPR Pipeline
 
-A comprehensive pipeline for single-cell Perturb-Seq analysis, enabling robust testing and demonstration of CRISPR screening data processing at single-cell resolution.
+A comprehensive pipeline for single-cell Perturb-Seq analysis that enables robust processing and analysis of CRISPR screening data at single-cell resolution.
 
-## Getting Started
+## Prerequisites
 
-### Prerequisites
+The following dependencies must be installed before running the pipeline:
 
-Before running the pipeline, ensure you have the following dependencies installed:
+### Nextflow
+Workflow manager for executing the pipeline:
+```bash
+conda install bioconda::nextflow
+```
 
-1. **Nextflow** (Workflow Manager)
-   ```bash
-   conda install bioconda::nextflow
-   ```
+### Mamba
+Fast package manager for dependency resolution:
+```bash
+conda install conda-forge::mamba
+```
 
-2. **Mamba** (Package Manager)
-   ```bash
-   conda install conda-forge::mamba
-   ```
+### Singularity
+Container platform that must be available in your execution environment.
 
-3. **Singularity** (Container Platform)
-   - Must be available on your execution environment
+## Installation
 
-## Installation Guide
-
-### Pipeline Setup
+To install the pipeline:
 
 ```bash
-# Clone the repository from GitHub 
-git clone https://github.com/jiangsizhu1201/CRISPR_Pipeline.git
+git clone https://github.com/pinellolab/CRISPR_Pipeline.git
 ```
 
 ## Input Requirements
 
-### Required Data Structure
+### File Descriptions
 
-**Essential Directories:**
+#### FASTQ Files
+- `{sample}_R1.fastq.gz`: Contains cell barcode and UMI sequences
+- `{sample}_R2.fastq.gz`: Contains transcript sequences
 
-1. **fastq_files/**: Raw sequencing data
-2. **yaml_files/**: Sequence specification files
-3. **Metadata files**: Analysis information
+#### YAML Configuration Files
+- `rna_seqspec.yml`: Defines RNA sequencing structure and parameters
+- `guide_seqspec.yml`: Specifies guide RNA detection parameters
+- `hash_seqspec.yml`: Defines cell hashing structure (required if using cell hashing)
+- `whitelist.txt`: List of valid cell barcodes
+
+#### Metadata Files
+- `guide_metadata.tsv`: Contains guide RNA information and annotations
+- `hash_metadata.tsv`: Cell hashing sample information (required if using cell hashing)
+- `pairs_to_test.csv`: Defines perturbation pairs for comparison analysis (required if testing predefined pairs)
 
 This pipeline requires a specific data structure to function properly. Below is an overview of the required directory organization:
 
 ```
-example_data/
-├── fastq_files/                        # Raw sequencing data
-│   ├── {sample}_R1.fastq.gz      # Read 1: Cell barcode and UMI
-│   └── {sample}_R2.fastq.gz      # Read 2: Transcript sequence
-│
-├── yaml_files/                      # SeqSpec yaml files
-│   ├── seqspec1.yaml             # Read 1 structure
-│   └── seqspec2.yaml             # Read 2 structure
-│
-├── guide_metadata.tsv              #  TSV file contaiing gRNA metadata
-├── hash_metadata.tsv             # TSV file contaiing cell hashing metadata (if applicable)
-└── pairs_to_test.csv            # CSV file defining perturbation comparisons (if applicable)
+📁 example_data/
+   │
+   ├── 📁 fastq_files/
+   │   ├── 📄 {sample}_R1.fastq.gz
+   │   └── 📄 {sample}_R2.fastq.gz
+   │
+   ├── 📁 yaml_files/
+   │   ├── 📄 rna_seqspec.yml
+   │   ├── 📄 guide_seqspec.yml
+   │   ├── 📄 hash_seqspec.yml
+   │   └── 📄 whitelist.txt
+   │
+   ├── 📄 guide_metadata.tsv
+   ├── 📄 hash_metadata.tsv
+   └── 📄 pairs_to_test.csv
 ```
 
 For detailed specifications, see our [documentation](https://docs.google.com/document/d/1Z1SOlekIE5uGyXW41XxnszxaYdSw0wdAOUVzfy3fj3M/edit?tab=t.0#heading=h.ctbx1w9hj619).
 
-## Running the Pipeline
+## Running the Pipeline 
 
-The configuration looks mostly good, but let's clarify the resource specifications since they're not just for kallisto mapping:
+### Configuration Steps
 
-### Configuration
+#### 1. Pipeline Settings
 
-1. Edit `configs/pipeline.config` to specify:
-   - Input data paths
-   - Analysis parameters
+Make sure to specify your data paths and analysis parameters in `configs/pipeline.config`.
 
-2. Edit `input.config` to specify:
-   - Computing resources
-   - Container(singularity/docker)/environment(conda)
+#### 2. Resource Configuration
 
-    ```bash
-    # Resource configuration example:
-    withName:process_name {
-        cpus = 4               # Number of CPU cores per mapping process (default: 4)
-        memory = 64.GB         # RAM allocation per mapping process (default: 64GB)
-        container = ''         # Container path (Singularity/Docker)
-        conda = ''            # Conda environment path
-    }
-    ```
-
-3. Hardware requirements:
-   - GPU: Required for Perturbo inference
-   - Adjust resources based on data size
-
-### Execution
+Configure `input.config` to match your computing environment. For example:
 
 ```bash
-# Set execute permissions
-chmod +x bin/*
-
-# Run pipeline with conda environment
-nextflow run main.nf -c input.config -with-conda
+withName:process_name {
+   cpus = 4               # Number of CPU cores per mapping process (default: 4)
+   memory = 64.GB         # RAM allocation per mapping process (default: 64GB)
+}
 ```
+💡 **Tip**: Start with these default values and adjust based on your dataset size and system capabilities.
+
+### Running the Pipeline
+
+1. First, make the scripts executable:
+   ```bash
+   chmod +x bin/*
+   ```
+
+2. Launch the pipeline:
+   ```bash
+   nextflow run main.nf -c input.config
+   ```
+
+### Monitoring and Troubleshooting
+
+#### During Execution
+- Watch the terminal output for progress updates
+- Check the `.nextflow.log` file for detailed execution logs
+
+#### Common Issues and Solutions
+- **Memory errors**: Increase the `memory` parameter in `input.config`
+- **Missing files**: Double-check paths in `configs/pipeline.config` and actual files in `example_data`
+
+Need help? Check our documentation or raise an issue on GitHub.
 
 ## Output Description
 
@@ -112,10 +129,10 @@ Within the `pipeline_outputs` directory, you will find:
 **Structure:**
 
 ```
-pipeline_outputs/
-├── inference_mudata.h5mu    
-├── per_element_output.tsv 
-├── per_guide_output.tsv 
+📁 pipeline_outputs/
+   ├── 📄 inference_mudata.h5mu    
+   ├── 📄 per_element_output.tsv    
+   └── 📄 per_guide_output.tsv     
 ```
 
 For details, see our [documentation](https://docs.google.com/document/d/1Z1SOlekIE5uGyXW41XxnszxaYdSw0wdAOUVzfy3fj3M/edit?tab=t.0#heading=h.ctbx1w9hj619).
@@ -150,33 +167,31 @@ Within the `pipeline_dashboard` directory, you will find:
 
 **Structure:**
 ```
-pipeline_dashboard/
-├── dashboard.html                          # Interactive dashboard
-├── evaluation_output/                      
-│   ├── network_plot.png                   
-│   ├── volcano_plot.png                   
-│   ├── igv.bedgraph                      
-│   └── igv.bedpe                         
-│
-├── figures/                               
-│   ├── knee_plot_scRNA.png               
-│   ├── scatterplot_scrna.png             
-│   ├── violin_plot.png                   
-│   ├── scRNA_barcodes_UMI_thresholds.png 
-│   ├── guides_per_cell_histogram.png     
-│   ├── cells_per_guide_histogram.png     
-│   ├── guides_UMI_thresholds.png         
-│   ├── cells_per_htp_barplot.png         
-│   ├── umap_hto.png                      
-│   └── umap_hto_singlets.png             
-│
-├── guide_seqSpec_plots/                   
-│   └── seqSpec_check_plots.png           
-│
-└── hashing_seqSpec_plots/                 
-    └── seqSpec_check_plots.png           
+📁 pipeline_dashboard/
+  ├── 📄 dashboard.html                         
+  │
+  ├── 📁 evaluation_output/                      
+  │   ├── 🖼️ network_plot.png                   
+  │   ├── 🖼️ volcano_plot.png                  
+  │   ├── 📄 igv.bedgraph                     
+  │   └── 📄 igv.bedpe                         
+  │
+  ├── 📁 figures/
+  │   ├── 🖼️ knee_plot_scRNA.png                
+  │   ├── 🖼️ scatterplot_scrna.png              
+  │   ├── 🖼️ violin_plot.png                    
+  │   ├── 🖼️ scRNA_barcodes_UMI_thresholds.png  
+  │   ├── 🖼️ guides_per_cell_histogram.png      
+  │   ├── 🖼️ cells_per_guide_histogram.png      
+  │   ├── 🖼️ guides_UMI_thresholds.png          
+  │   ├── 🖼️ cells_per_htp_barplot.png          
+  │   ├── 🖼️ umap_hto.png                       
+  │   └── 🖼️ umap_hto_singlets.png              
+  │
+  ├── 📁 guide_seqSpec_plots/
+  │   └── 🖼️ seqSpec_check_plots.png            
+  │
+  └── 📁 hashing_seqSpec_plots/
+      └── 🖼️ seqSpec_check_plots.png             
 ```
-
-
-
 

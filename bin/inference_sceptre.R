@@ -73,7 +73,7 @@ inference_sceptre_m <- function(mudata, ...) {
   # extract set of discovery pairs to test
   pairs_to_test <- MultiAssayExperiment::metadata(mudata)$pairs_to_test |>
     as.data.frame()
-
+  
   discovery_pairs <- pairs_to_test |>
     dplyr::rename(
       grna_target = intended_target_name,
@@ -113,19 +113,6 @@ inference_sceptre_m <- function(mudata, ...) {
 
   # set analysis parameters
   sceptre_object <- do.call(sceptre::set_analysis_parameters, args_list)
-
-  # Add before assign_grnas
-  print("Import gRNA assignment info:")
-  print(str(sceptre_object@import_grna_assignment_info))
-
-  # Check gRNA matrix stats
-  print("gRNA matrix stats:")
-  print(summary(as.vector(sceptre_object@grna_matrix)))
-  print(dim(sceptre_object@grna_matrix))
-
-  # Check if control groups are properly defined
-  print("Control group info:")
-  print(str(sceptre_object@negative_control_pairs))
 
   # extract gRNA assignment and turn off QC
   sceptre_object <- sceptre_object |>

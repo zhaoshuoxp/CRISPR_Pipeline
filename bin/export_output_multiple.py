@@ -20,8 +20,8 @@ def merge_results(sceptre_result, perturbo_mudata):
 
     # Merge results 
     merged_result = test_result.merge(
-        perturbo_result[['guide_id', 'perturbo_log2_fc', 'perturbo_p_value']],
-        on='guide_id', how='outer'
+        perturbo_result[['guide_id', 'gene_id', 'perturbo_log2_fc', 'perturbo_p_value']],
+        on=['guide_id', 'gene_id']
     )
 
     # Update MuData with merged results
@@ -38,7 +38,7 @@ def export_output(merged_result, mudata):
     # Generate per-guide output
     per_guide_output = (
         merged_result
-        .merge(mudata.mod['guide'].var, how='left', on='intended_target_name')
+        .merge(mudata.mod['guide'].var, how='left', on=['intended_target_name','guide_id'])
         .rename(columns={'guide_id_x': 'guide_id(s)'})
     )
 
@@ -75,16 +75,32 @@ def export_output(merged_result, mudata):
     ])
     # Generate per-element output
     per_element_output = (
-        per_guide_output.groupby('intended_target_name', as_index=False)
-        .agg({'guide_id(s)': ','.join})
+        per_guide_output.groupby('gene_id', as_index=False)
+        .agg({'guide_id(s)': lambda x: ','.join(x.dropna().astype(str))})
         .merge(
-            per_guide_output.drop_duplicates('intended_target_name')
+            per_guide_output.drop_duplicates('gene_id')
             .drop(columns=['guide_id(s)']),
-            on='intended_target_name',
+            on='gene_id',
             how='left'
         )
     )
 
+    column_order = [
+        'intended_target_name',
+        'guide_id(s)',
+        'intended_target_chr',
+        'intended_target_start',
+        'intended_target_end',
+        'gene_id',
+        'sceptre_log2_fc',
+        'sceptre_p_value',
+        'perturbo_log2_fc',
+        'perturbo_p_value',
+        'cell_number',
+        'avg_gene_expression'
+    ]
+
+    per_element_output = per_element_output[column_order]
     # Save outputs
     per_guide_output.to_csv('per_guide_output.tsv', sep='\t', index=False)
     per_element_output.to_csv('per_element_output.tsv', sep='\t', index=False)

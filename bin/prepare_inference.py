@@ -22,9 +22,11 @@ def main(guide_inference, mudata_path):
     
     # adding 'pairs_to_test' to mudata uns
     ## remove the gene_id that is not included in the mudata
-    gene_var = mudata.mod['gene'].var.index if mudata.mod['gene'] is not None else []
+    mudata.mod['gene'].var['symbol_new'] = mudata.mod['gene'].var['symbol'].str.split('.').str[0]
+    mudata.mod['gene'].var.index = mudata.mod['gene'].var['symbol_new']
+    gene_var = mudata.mod['gene'].var.index if mudata.mod['gene'].var.index is not None else []
     guide_var = mudata.mod['guide'].var['guide_id'] if mudata.mod['guide'] is not None else []
-    
+
     include1 = set(guide_inference['gene_name']).intersection(set(gene_var))
     include2 = set(guide_inference['guide_id']).intersection(set(guide_var))
     

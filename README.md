@@ -252,8 +252,17 @@ This dataset comes from a large-scale CRISPR screen study published in Cell ([Ga
       ```
 
    2. Obtain sequencing data:
-      - Download FASTQ files from [GEO repository (GSE120861)](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE120861)
+      - Download a subset of the dataset gasperini in your own server.
       - Place files in `example_data/fastq_files` directory
+      ```
+      NTHREADS=16
+      wget https://github.com/10XGenomics/bamtofastq/releases/download/v1.4.1/bamtofastq_linux; chmod +x bamtofastq_linux
+      wget https://sra-pub-src-1.s3.amazonaws.com/SRR7967488/pilot_highmoi_screen.1_CGTTACCG.grna.bam.1;mv pilot_highmoi_screen.1_CGTTACCG.grna.bam.1 pilot_highmoi_screen.1_CGTTACCG.grna.bam
+      ./bamtofastq_linux --nthreads="$NTHREADS" pilot_highmoi_screen.1_CGTTACCG.grna.bam bam_pilot_guide_1
+
+      wget https://sra-pub-src-1.s3.amazonaws.com/SRR7967482/pilot_highmoi_screen.1_SI_GA_G1.bam.1;mv pilot_highmoi_screen.1_SI_GA_G1.bam.1 pilot_highmoi_screen.1_SI_GA_G1.bam
+      ./bamtofastq_linux --nthreads="$NTHREADS" pilot_highmoi_screen.1_SI_GA_G1.bam bam_pilot_scrna_1
+      ```
 
    3. Prepare the whitelist:
       ```bash

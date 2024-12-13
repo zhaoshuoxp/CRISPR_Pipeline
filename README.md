@@ -245,6 +245,7 @@ This dataset comes from a large-scale CRISPR screen study published in Cell ([Ga
    #### Option B: Gasperini Dataset
 
    1. Set up the configuration files:
+   
       ```bash
       # Copy configuration files and example data
       cp -r example_gasperini/configs/* configs/
@@ -254,6 +255,7 @@ This dataset comes from a large-scale CRISPR screen study published in Cell ([Ga
    2. Obtain sequencing data:
       - Download a subset of the dataset gasperini in your own server.
       - Place files in `example_data/fastq_files` directory
+
       ```
       NTHREADS=16
       wget https://github.com/10XGenomics/bamtofastq/releases/download/v1.4.1/bamtofastq_linux; chmod +x bamtofastq_linux

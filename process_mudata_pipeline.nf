@@ -8,6 +8,7 @@ include { guide_assignment_sceptre } from './processes/guide_assignment_sceptre.
 include { guide_assignment_mudata } from './processes/guide_assignment_mudata.nf'
 include { downloadGTF } from './processes/downloadGTF.nf'
 include { prepare_guide_inference } from './processes/prepare_guide_inference.nf'
+include { prepare_all_guide_inference } from './processes/prepare_all_guide_inference.nf'
 include { prepare_user_guide_inference } from './processes/prepare_user_guide_inference.nf'
 include { inference_sceptre } from './processes/inference_sceptre.nf'
 include { inference_perturbo } from './processes/inference_perturbo.nf'
@@ -56,14 +57,19 @@ workflow process_mudata_pipeline {
 
     if (params.inference_option == 'predefined_pairs') {
         PrepareInference = prepare_user_guide_inference(
-            Guide_Assignment.guide_assignment_mudata_output,
+            file(params.input),
             file(params.user_inference)
         )}
-    else {
+    else if (params.inference_option == 'by_distance') {
         PrepareInference = prepare_guide_inference(
-            Guide_Assignment.guide_assignment_mudata_output,
-            GTF_Reference.gencode_gtf,
+            file(params.input),
+            file(params.gtf),
             params.distance_from_center
+        )}
+    else if (params.inference_option == 'all_by_all') {
+        PrepareInference = prepare_all_guide_inference(
+            file(params.input),
+            file(params.gtf)
         )}
 
     if (params.inference_method == "sceptre"){

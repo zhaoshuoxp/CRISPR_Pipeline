@@ -80,19 +80,19 @@ workflow process_mudata_pipeline_HASHING {
 
     if (params.inference_option == 'predefined_pairs') {
         PrepareInference = prepare_user_guide_inference(
-            file(params.input),
+            Guide_Assignment.guide_assignment_mudata_output,
             file(params.user_inference)
         )}
     else if (params.inference_option == 'by_distance') {
         PrepareInference = prepare_guide_inference(
-            file(params.input),
-            file(params.gtf),
+            Guide_Assignment.guide_assignment_mudata_output,
+            GTF_Reference.gencode_gtf,
             params.distance_from_center
         )}
     else if (params.inference_option == 'all_by_all') {
         PrepareInference = prepare_all_guide_inference(
-            file(params.input),
-            file(params.gtf)
+            Guide_Assignment.guide_assignment_mudata_output,
+            GTF_Reference.gencode_gtf
         )}
 
     if (params.inference_method == "sceptre"){

@@ -2,7 +2,6 @@
 process downloadGenome {
     input:
     val genome_path
-    val hg38_path
 
     output:
     path "genome.fa.gz" , emit: genome

@@ -265,11 +265,12 @@ This dataset comes from a large-scale CRISPR screen study published in Cell ([Ga
       wget https://sra-pub-src-1.s3.amazonaws.com/SRR7967482/pilot_highmoi_screen.1_SI_GA_G1.bam.1;mv pilot_highmoi_screen.1_SI_GA_G1.bam.1 pilot_highmoi_screen.1_SI_GA_G1.bam
       ./bamtofastq_linux --nthreads="$NTHREADS" pilot_highmoi_screen.1_SI_GA_G1.bam bam_pilot_scrna_1
       ```
+      Now you should see the `bam_pilot_guide_1` and `bam_pilot_scrna_1` directories inside the `example_data/fastq_files` directory. Inside `bam_pilot_guide_1` and `bam_pilot_scrna_1`, there are multiple sets of FASTQ files.
 
    3. Prepare the whitelist:
       ```bash
       # Extract the compressed whitelist file
-      gunzip example_data/yaml_files/3M-february-2018.txt.zip
+      unzip example_data/yaml_files/3M-february-2018.txt.zip
       ```
 
    4. Launch the pipeline:

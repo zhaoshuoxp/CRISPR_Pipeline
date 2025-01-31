@@ -6,7 +6,7 @@ import numpy as np
 from collections import defaultdict
 import muon as mu
 import os
-from GTFProcessing import GTFProcessing
+from gtfparse import read_gtf
 from typing import Literal, Tuple, Dict, Optional
 
 def process_coordinates(mdata) -> Dict[str, list]:
@@ -45,8 +45,7 @@ def igv(mdata, gtf: str, method: Optional[Literal['sceptre', 'perturbo']] = None
     coordinate_dict = process_coordinates(mdata)
 
     # Process GTF file
-    gtf_processor = GTFProcessing(gtf)
-    df_gtf = gtf_processor.get_gtf_df()
+    df_gtf = read_gtf(gtf).to_pandas()
     gencode_df = df_gtf[['gene_id', 'gene_name']]
     gencode_df['gene_id2'] = gencode_df['gene_id'].str.split('.').str[0]
     gencode_df = gencode_df.drop_duplicates()

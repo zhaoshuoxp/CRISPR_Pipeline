@@ -5,9 +5,9 @@ import anndata as ad
 import pandas as pd
 import numpy as np
 from muon import MuData
+from gtfparse import read_gtf
 import matplotlib.pyplot as plt
 import os
-from GTFProcessing import GTFProcessing
 
 def main(adata_rna, adata_guide, adata_hashing, guide_metadata, gtf, moi):
     # Load the data
@@ -15,13 +15,12 @@ def main(adata_rna, adata_guide, adata_hashing, guide_metadata, gtf, moi):
     adata_rna = ad.read_h5ad(adata_rna)
     adata_guide = ad.read_h5ad(adata_guide)
     adata_hashing = ad.read_h5ad(adata_hashing)
-    gtf = GTFProcessing(gtf)
-    df_gtf = gtf.get_gtf_df() 
+    df_gtf = read_gtf(gtf).to_pandas()
 
     # add targeting_chr, start, end to the targeting elements
-    gene_map_df = df_gtf.groupby('gene_name')[['chr', 'start', 'end']].first()
+    gene_map_df = df_gtf.groupby('gene_name').first()[['seqname', 'start', 'end']]
     guide_metadata = guide_metadata.merge(gene_map_df, how='left', left_on='targeting', right_index=True)
-    guide_metadata = guide_metadata.rename(columns={'chr': 'intended_target_chr', 'start': 'intended_target_start', 'end': 'intended_target_end'})
+    guide_metadata = guide_metadata.rename(columns={'seqname': 'intended_target_chr', 'start': 'intended_target_start', 'end': 'intended_target_end'})
 
     ## change in adata_guide
     # adding var for guide
@@ -68,7 +67,7 @@ def main(adata_rna, adata_guide, adata_hashing, guide_metadata, gtf, moi):
     df_gtf_copy = df_gtf.copy()
     df_gtf_copy.set_index('gene_id2', inplace=True)
     # adding gene_start, gene_end, gene_chr
-    adata_rna.var = adata_rna.var.join(df_gtf_copy[['chr', 'start', 'end']].rename(columns={'chr': 'gene_chr', 
+    adata_rna.var = adata_rna.var.join(df_gtf_copy[['seqname', 'start', 'end']].rename(columns={'seqname': 'gene_chr', 
                                                                                             'start': 'gene_start', 
                                                                                             'end': 'gene_end'}))
  

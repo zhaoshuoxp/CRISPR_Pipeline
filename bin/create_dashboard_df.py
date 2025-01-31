@@ -171,15 +171,42 @@ def create_dashboard_df(guide_fq_tbl, mudata_path, gene_ann_path, filtered_ann_p
     mean_cells_per_guide = np.mean(cells_per_guide)
 
     iv_highlight = f"Mean guides per cell: {human_format(mean_guides_per_cell)}, Mean cells per guide: {human_format(mean_cells_per_guide)}"
-    inf_img_df = new_block('Inference', '', 'Visualization', iv_highlight, True, 
-            image = ['evaluation_output/network_plot.png', 'evaluation_output/volcano_plot.png'],
-            image_description= ['Gene interaction networks of selected genes.', 'Volcano Plot.'])
+
+    # Collect existing network plots
+    network_plots = []
+    network_descs = []
+
+    if os.path.exists('evaluation_output/sceptre_network_plot.png'):
+        network_plots.append('evaluation_output/sceptre_network_plot.png')
+        network_descs.append('Sceptre network plot')
+
+    if os.path.exists('evaluation_output/perturbo_network_plot.png'):
+        network_plots.append('evaluation_output/perturbo_network_plot.png')
+        network_descs.append('Perturbo network plot')
+
+    # Collect existing volcano plots
+    volcano_plots = []
+    volcano_descs = []
+
+    if os.path.exists('evaluation_output/sceptre_volcano_plot.png'):
+        volcano_plots.append('evaluation_output/sceptre_volcano_plot.png')
+        volcano_descs.append('Sceptre volcano plot')
+
+    if os.path.exists('evaluation_output/perturbo_volcano_plot.png'):
+        volcano_plots.append('evaluation_output/perturbo_volcano_plot.png')
+        volcano_descs.append('Perturbo volcano plot')
+
+    # Combine network + volcano
+    all_plots = network_plots + volcano_plots
+    all_descs = network_descs + volcano_descs
+
+    inf_img_df = new_block('Inference', '', 'Visualization', iv_highlight, True, image=all_plots, image_description=all_descs)
     
     ### check guide seqspec check df 
     guide_check_df = new_block("Guide", '', 'Fastq Overview', '', False, table = guide_fq_table,
-                         table_description='Summary of Sequence Index: A summary of the positions where the Guide starts are mapped on the reads (Use to inspect or calibrate the position where the guide is supposed to be found in your SeqSpec File)',
-                         image = ['guide_seqSpec_plots/seqSpec_check_plots.png'],
-                         image_description= ['The frequency of each nucleotides along the Read 1 (Use to inspect the expected read parts with their expected signature) and Read 2 (Use to inspect the expected read parts with their expected signature)'])
+                        table_description='Summary of Sequence Index: A summary of the positions where the Guide starts are mapped on the reads (Use to inspect or calibrate the position where the guide is supposed to be found in your SeqSpec File)',
+                        image = ['guide_seqSpec_plots/seqSpec_check_plots.png'],
+                        image_description= ['The frequency of each nucleotides along the Read 1 (Use to inspect the expected read parts with their expected signature) and Read 2 (Use to inspect the expected read parts with their expected signature)'])
 
     return guide_check_df, cell_stats, gene_stats, rna_img_df, guide_img_df, gi_df, gs_img_df, inf_img_df
 

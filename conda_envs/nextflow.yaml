@@ -21,10 +21,10 @@ dependencies:
   - scrublet
   - networkx
   - umap-learn
+  - scikit-learn
   - cmdstanpy
+  - gtfparse
   - pip:
-      - openpyxl
-      - seqspec
-      - adjustText
-      - igraph
-      - git+https://github.com/LucasSilvaFerreira/GTFProcessing.git
+    - openpyxl
+    - seqspec
+    - igraph

@@ -2,23 +2,22 @@
 import argparse
 import pandas as pd
 import numpy as np
-from GTFProcessing import GTFProcessing
+from gtfparse import read_gtf
 import muon as mu
 
-def main(limit, mudata_path, input_gtf_path):
+def main(limit, mudata_path, input_gtf):
     mudata = mu.read(mudata_path)
     guide_data = mudata.mod['guide'].var
     
     # Load GTF
-    gtf = GTFProcessing(input_gtf_path)
-    df_gtf_refseq = gtf.get_gtf_df()
+    df_gtf_refseq = read_gtf(input_gtf).to_pandas()
     df_gtf_unique_gene_name = df_gtf_refseq.drop_duplicates('gene_name')
     df_gtf_unique_gene_name.set_index('gene_name', inplace=True)
     
     final_candidates_list = []
-    for g_name, target_name, g_chr, g_start in guide_data[['guide_id', 'intended_target_name', 'intended_target_chr', 'intended_target_start']].values:
-        temp_gtf = df_gtf_unique_gene_name.query(f'chr == "{g_chr}"').copy()
-        temp_gtf['distance_from_guide'] = np.abs(temp_gtf['start'] - g_start)
+    for g_name, target_name, target_chr, target_start in guide_data[['guide_id', 'intended_target_name', 'intended_target_chr', 'intended_target_start']].values:
+        temp_gtf = df_gtf_unique_gene_name.query(f'seqname == "{target_chr}"').copy()
+        temp_gtf['distance_from_guide'] = np.abs(temp_gtf['start'] - target_start)
         
         # If limit is None, take all entries, otherwise apply distance filter
         if limit is None:

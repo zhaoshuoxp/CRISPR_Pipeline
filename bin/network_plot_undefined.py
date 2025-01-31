@@ -16,7 +16,7 @@ def plot_network(mdata: MuData, central_node: str, method: Optional[Literal['sce
                ax: Optional[plt.Axes] = None):
    
    if ax is None:
-       ax = plt.gca()
+       fig, ax = plt.subplots(1, 1, figsize=(15, 15))
    
    # Set column names based on whether method is specified
    if not method:  # Generic columns
@@ -34,6 +34,10 @@ def plot_network(mdata: MuData, central_node: str, method: Optional[Literal['sce
    # Filter to rows related to the selected central node
    if central_node is not None:
        results_df = results_df[results_df[source_column] == central_node]
+       
+   if results_df.empty:
+       print(f"No data found for {central_node} with method {method}")
+       return False
 
    G = nx.DiGraph()
    for i, row in results_df.iterrows():
@@ -69,33 +73,53 @@ def plot_network(mdata: MuData, central_node: str, method: Optional[Literal['sce
    
    method_title = method.capitalize() if method else "Differential Expression"
    ax.set_title(f"{method_title} Network - {central_node}")
+   return True
 
 def select_central_nodes(mdata: MuData, num_nodes: int, source_column: str,
-                       target_column: str, method: Optional[Literal['sceptre', 'perturbo']]):
-   # Set column name based on whether method is specified
-   if not method:
-       weight_column = "log2_fc"
-   else:
-       weight_column = f"{method}_log2_fc"
-   
-   results_df = pd.DataFrame({k: v for k, v in mdata.uns["test_results"].items()})
-   results_df = results_df.drop_duplicates()
-   
-   # Create a graph and calculate the degree of each node
-   G = nx.DiGraph()
-   for i, row in results_df.iterrows():
-       if pd.notna(row.get(weight_column)):  # Only add edges if weight exists
-           G.add_edge(row[source_column], row[target_column], weight=abs(row[weight_column]))
-   
-   # Sort nodes by weighted degree
-   degrees = dict(G.degree(weight='weight'))
-   sorted_nodes = sorted(degrees, key=degrees.get, reverse=True)
+                       target_column: str, method: Optional[Literal['sceptre', 'perturbo']],
+                       min_weight: Optional[float] = None):  # Added min_weight parameter
+    # Set column name based on whether method is specified
+    if not method:
+        weight_column = "log2_fc"
+    else:
+        weight_column = f"{method}_log2_fc"
+    
+    results_df = pd.DataFrame({k: v for k, v in mdata.uns["test_results"].items()})
+    results_df = results_df.drop_duplicates()
+    
+    # Apply min_weight filter if specified
+    if min_weight is not None:
+        results_df = results_df[results_df[weight_column].abs() >= min_weight]
+    
+    # Create a graph and calculate the degree of each node
+    G = nx.DiGraph()
+    for i, row in results_df.iterrows():
+        if pd.notna(row.get(weight_column)):  # Only add edges if weight exists
+            G.add_edge(row[source_column], row[target_column], weight=abs(row[weight_column]))
+    
+    # Sort nodes by weighted degree
+    degrees = dict(G.degree(weight='weight'))
+    sorted_nodes = sorted(degrees, key=degrees.get, reverse=True)
 
-   intended_target_names = set(results_df['intended_target_name'])
-   filtered_nodes = [node for node in sorted_nodes if node in intended_target_names]
-   method_name = method if method else "Analysis"
-   print(f"Top {num_nodes} nodes for {method_name}:", filtered_nodes[:num_nodes])
-   return filtered_nodes[:num_nodes]
+    intended_target_names = set(results_df['intended_target_name'])
+    filtered_nodes = [node for node in sorted_nodes if node in intended_target_names]
+    
+    # Verify each node has data
+    valid_nodes = []
+    for node in filtered_nodes:
+        node_data = results_df[results_df[source_column] == node]
+        if not node_data.empty:
+            valid_nodes.append(node)
+            if len(valid_nodes) == num_nodes:
+                break
+    
+    method_name = method if method else "Analysis"
+    if valid_nodes:
+        print(f"Top {len(valid_nodes)} nodes for {method_name}:", valid_nodes)
+    else:
+        print(f"No valid nodes found for {method_name} with the current filters")
+    
+    return valid_nodes
 
 def main():
    print("Starting program...")
@@ -121,16 +145,22 @@ def main():
    cols = results_df.columns
    print("Available columns:", cols)
    
+   output_dir = "evaluation_output"
+   os.makedirs(output_dir, exist_ok=True)
+   
    # Check for generic columns first
    if 'log2_fc' in cols and 'p_value' in cols:
        print("Using generic log2_fc and p_value columns")
        central_nodes = select_central_nodes(
            mdata, args.num_nodes, args.source_column, args.target_column, None
        )
-       fig = plt.figure(figsize=(15, 7.5 * len(central_nodes)))
+       
+       # Create one figure with subplots for all nodes
+       num_rows = (len(central_nodes) + 1) // 2
+       fig = plt.figure(figsize=(30, 15 * num_rows))
        
        for i, central_node in enumerate(central_nodes):
-           ax = fig.add_subplot(len(central_nodes), 1, i + 1)
+           ax = fig.add_subplot(num_rows, 2, i + 1)
            plot_network(
                mdata,
                central_node=central_node,
@@ -141,6 +171,13 @@ def main():
                results_key=args.results_key,
                ax=ax
            )
+       
+       plt.tight_layout()
+       output_file = os.path.join(output_dir, "network_plot.png")
+       plt.savefig(output_file, dpi=300, bbox_inches='tight')
+       plt.close()
+       print(f"Saved combined plot to {output_file}")
+           
    else:
        # Check for method-specific columns
        available_methods = []
@@ -155,23 +192,22 @@ def main():
            print("No methods with valid data found")
            return
        
-       central_nodes = set()
+       # Create separate plots for each method
        for method in available_methods:
-           method_nodes = set(select_central_nodes(
-               mdata, args.num_nodes, args.source_column, args.target_column, method
-           ))
-           central_nodes.update(method_nodes)
-       
-       central_nodes = list(central_nodes)
-       print(f"\nTotal unique nodes selected: {len(central_nodes)}")
+           print(f"\nGenerating plot for {method}...") 
 
-       # Create plots based on number of methods
-       num_methods = len(available_methods)
-       fig = plt.figure(figsize=(15/num_methods, 7.5 * len(central_nodes)))
+   # Create separate plots for each method
+   for method in available_methods:
+       print(f"\nGenerating plot for {method}...")
        
-       for i, central_node in enumerate(central_nodes):
-           for j, method in enumerate(available_methods):
-               ax = fig.add_subplot(len(central_nodes), num_methods, i*num_methods + j + 1)
+       method_nodes = select_central_nodes(mdata, args.num_nodes, args.source_column, args.target_column, method, args.min_weight)
+       
+       fig = plt.figure(figsize=(30, 15))
+       
+       if method_nodes:
+           num_rows = (len(method_nodes) + 1) // 2
+           for i, central_node in enumerate(method_nodes):
+               ax = fig.add_subplot(num_rows, 2, i + 1)
                plot_network(
                    mdata,
                    central_node=central_node,
@@ -182,15 +218,23 @@ def main():
                    results_key=args.results_key,
                    ax=ax
                )
+       else:
+           # Create a single blank subplot with a message
+           ax = fig.add_subplot(1, 1, 1)
+           ax.text(0.5, 0.5, f"No nodes available for {method}\nwith min_weight={args.min_weight}",
+                  horizontalalignment='center',
+                  verticalalignment='center',
+                  transform=ax.transAxes,
+                  fontsize=14)
+           ax.set_axis_off()
+       
+       plt.tight_layout()
+       output_file = os.path.join(output_dir, f"{method}_network_plot.png")
+       plt.savefig(output_file, dpi=300, bbox_inches='tight')
+       plt.close()
+       print(f"Saved {method} plots to {output_file}")
 
-   plt.tight_layout()
-
-   # Save the plot
-   output_dir = "evaluation_output"
-   os.makedirs(output_dir, exist_ok=True)
-   output_file = os.path.join(output_dir, "network_plot.png")
-   plt.savefig(output_file, dpi=300, bbox_inches='tight')
-   print(f"Plot saved to {output_file}")
+   print("All plots generated successfully")
 
 if __name__ == "__main__":
    main()

@@ -8,6 +8,7 @@ from mudata import MuData
 import networkx as nx
 import matplotlib.pyplot as plt
 from typing import Optional, Literal
+from math import ceil
 
 def plot_network(mdata: MuData, 
                 central_node: str, 
@@ -35,8 +36,12 @@ def plot_network(mdata: MuData,
         filtered_df = results_df[results_df[source_column] == central_node]
         
         if filtered_df.empty:
-            print(f"Error: Central node '{central_node}' not found in the {method} results (filtered by min_weight). Skipping plot.")
-            return False  
+            # Create empty plot with message instead of returning False
+            ax.text(0.5, 0.5, f"No network found for\n{central_node}", 
+                   ha='center', va='center')
+            ax.set_title(f"{method.capitalize()} Network - {central_node}")
+            ax.axis('off')
+            return False
         results_df = filtered_df
 
     # Create the network 
@@ -51,19 +56,17 @@ def plot_network(mdata: MuData,
     # Calculate node sizes based on -log10(p-value)
     node_sizes = {}
     for node in G.nodes():
-        # Get all edges connected to this node
         edges = G.in_edges(node, data=True)
         if edges:
-            # Use the minimum p-value associated with the node
             min_pvalue = min(d['pvalue'] for _, _, d in edges)
-            node_sizes[node] = -np.log10(min_pvalue) * 100  # Scale factor for visibility
+            node_sizes[node] = -np.log10(min_pvalue) * 100
         else:
-            node_sizes[node] = 100  # Default size
+            node_sizes[node] = 100
 
     # Draw nodes
     sizes = [node_sizes.get(n, 100) for n in G.nodes()]
     nx.draw(G, pos, with_labels=True, node_color="skyblue", 
-            node_size=sizes, edge_cmap=plt.cm.coolwarm, arrowsize=20)
+            node_size=sizes, edge_cmap=plt.cm.coolwarm, arrowsize=20, ax=ax)
 
     # Draw labels
     label_pos = {k: (v[0]+0.2, v[1] + 0.05) for k, v in pos.items()}
@@ -80,8 +83,29 @@ def plot_network(mdata: MuData,
     ax.set_title(f"{method.capitalize()} Network - {central_node}")
     return True 
 
+def create_method_figure(mdata: MuData,
+                        central_node: str,
+                        method: str,
+                        source_column: str,
+                        target_column: str,
+                        min_weight: float,
+                        results_key: str):
+    """Create a figure for a specific method and central node."""
+    
+    fig = plt.figure(figsize=(7, 7))
+    ax = fig.add_subplot(111)
+    plot_network(mdata, central_node, method,
+                source_column=source_column,
+                target_column=target_column,
+                min_weight=min_weight,
+                results_key=results_key,
+                ax=ax)
+    
+    plt.tight_layout()
+    return fig
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Plot networks from MuData comparing two analysis methods")
+    parser = argparse.ArgumentParser(description="Plot networks from MuData for available analysis methods")
     parser.add_argument("mdata_path", type=str, help="Path to the MuData file")
     parser.add_argument("--central_nodes", type=str, nargs='+', required=True, 
                       help="Central nodes to plot")
@@ -97,58 +121,58 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # Load MuData
+    print("Loading MuData file...")
     mdata = mu.read(args.mdata_path)
-    valid_plots = []
-
-    # Check which central nodes have valid plots for both methods
-    for central_node in args.central_nodes:
-        sceptre_valid = plot_network(mdata, central_node, 'sceptre',
-                                   source_column=args.source_column,
-                                   target_column=args.target_column,
-                                   min_weight=args.min_weight,
-                                   results_key=args.results_key)
-        
-        perturbo_valid = plot_network(mdata, central_node, 'perturbo',
-                                    source_column=args.source_column,
-                                    target_column=args.target_column,
-                                    min_weight=args.min_weight,
-                                    results_key=args.results_key)
-        
-        if sceptre_valid and perturbo_valid:
-            valid_plots.append(central_node)
     
-    num_valid_plots = len(valid_plots)
-    if num_valid_plots == 0:
-        print("No valid plots found for any central nodes.")
-        exit()
-
-    # Create figure with subplots for each method
-    fig = plt.figure(figsize=(15, 7.5 * num_valid_plots))
-
-    for i, central_node in enumerate(valid_plots):
-        # Plot Sceptre
-        ax1 = fig.add_subplot(num_valid_plots, 2, 2*i + 1)
-        plot_network(mdata, central_node, 'sceptre',
-                    source_column=args.source_column,
-                    target_column=args.target_column,
-                    min_weight=args.min_weight,
-                    results_key=args.results_key,
-                    ax=ax1)
+    # Detect available methods
+    results_df = pd.DataFrame({k: v for k, v in mdata.uns[args.results_key].items()})
+    cols = results_df.columns
+    
+    available_methods = []
+    if 'sceptre_log2_fc' in cols and not results_df['sceptre_log2_fc'].isna().all():
+        available_methods.append('sceptre')
+    if 'perturbo_log2_fc' in cols and not results_df['perturbo_log2_fc'].isna().all():
+        available_methods.append('perturbo')
         
-        # Plot Perturbo
-        ax2 = fig.add_subplot(num_valid_plots, 2, 2*i + 2)
-        plot_network(mdata, central_node, 'perturbo',
-                    source_column=args.source_column,
-                    target_column=args.target_column,
-                    min_weight=args.min_weight,
-                    results_key=args.results_key,
-                    ax=ax2)
-
-    plt.tight_layout()
-
-    # Save the plot
+    print(f"Available methods: {available_methods}")
+    
+    if not available_methods:
+        print("No methods with valid data found")
+        exit()
+    
+    # Create output directory
     output_dir = "evaluation_output"
     os.makedirs(output_dir, exist_ok=True)
-    output_file = os.path.join(output_dir, "network_plot.png")
-    plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    print(f"Plot saved to {output_file}")
+    
+    # Create plots for each method and central node
+    for method in available_methods:
+        print(f"\nGenerating plots for {method}...")
+        
+        # Calculate number of subplots needed
+        n_plots = len(args.central_nodes)
+        n_cols = min(3, n_plots)  # Max 3 columns
+        n_rows = ceil(n_plots / n_cols)
+        
+        # Create figure for this method
+        fig = plt.figure(figsize=(7 * n_cols, 7 * n_rows))
+        fig.suptitle(f"{method.capitalize()} Networks", fontsize=16, y=0.95)
+        
+        # Create subplots for each central node
+        for i, central_node in enumerate(args.central_nodes):
+            ax = fig.add_subplot(n_rows, n_cols, i + 1)
+            plot_network(mdata, central_node, method,
+                        source_column=args.source_column,
+                        target_column=args.target_column,
+                        min_weight=args.min_weight,
+                        results_key=args.results_key,
+                        ax=ax)
+        
+        plt.tight_layout()
+        
+        # Save the plot
+        output_file = os.path.join(output_dir, f"{method}_network_plot.png")
+        fig.savefig(output_file, dpi=300, bbox_inches='tight')
+        plt.close(fig)
+        print(f"Saved {method} plots to {output_file}")
+
+    print("All plots generated successfully")

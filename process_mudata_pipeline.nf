@@ -6,6 +6,7 @@ include { doublets_scrub } from './processes/doublets_scrub.nf'
 include { guide_assignment_cleanser } from './processes/guide_assignment_cleanser.nf'
 include { guide_assignment_sceptre } from './processes/guide_assignment_sceptre.nf'
 include { guide_assignment_mudata } from './processes/guide_assignment_mudata.nf'
+include { skipGTFDownload } from './processes/skipGTFDownload.nf'
 include { downloadGTF } from './processes/downloadGTF.nf'
 include { prepare_guide_inference } from './processes/prepare_guide_inference.nf'
 include { prepare_all_guide_inference } from './processes/prepare_all_guide_inference.nf'
@@ -34,7 +35,12 @@ workflow process_mudata_pipeline {
         params.transcriptome
         )
     
-    GTF_Reference = downloadGTF(params.gtf_url)
+    if (file(params.gtf_local_path).exists()) {
+        GTF_Reference = skipGTFDownload(file(params.gtf_local_path))
+    }
+    else {
+        GTF_Reference = downloadGTF(params.gtf_download_path)
+    }
 
     MuData = CreateMuData(
         Preprocessed_AnnData.filtered_anndata_rna,

@@ -9,6 +9,7 @@ import muon as mu
 import anndata as ad
 import numpy as np 
 from umap import UMAP
+from sklearn.decomposition import PCA
 import math
 
 def plot_umi_threshold(mudata, save_dir):
@@ -195,89 +196,163 @@ def plot_umap_HTOs(mudata, save_dir):
         axes = np.array([axes])
 
     for i, batch in enumerate(batches):
+        ax = axes[i]
         batch_mask = demux.obs['batch'] == batch
         batch_data = demux.X[batch_mask]
-        num = batch_data.shape[0]
-        umap = UMAP(n_neighbors=150, min_dist=0.2, n_components=2, spread=1.5,random_state=42)
-        umap_result = umap.fit_transform(batch_data)
-        demux.obs.loc[batch_mask, ['UMAP1', 'UMAP2']] = umap_result
-    
-        ax = axes[i]
-        sc = ax.scatter(demux.obs.loc[batch_mask, 'UMAP1'],
-                        demux.obs.loc[batch_mask, 'UMAP2'],
-                        c=demux.obs.loc[batch_mask, 'hto_color'],
-                        alpha=0.7, s=1)
-        
-        ax.set_title(f'{batch}, number of cells: {num}')
-        ax.set_xlabel('UMAP1')
-        ax.set_ylabel('UMAP2')
 
+        # Limit PCA components for this batch
+        n_samples = batch_data.shape[0]
+        n_features = batch_data.shape[1]
+        # At least 2, but not more than min(n_samples, n_features)
+        n_pca_components = max(2, min(n_samples, n_features) - 1)
+
+        # Re-initialize PCA and UMAP for this batch
+        pca = PCA(n_components=n_pca_components)
+        umap_model = UMAP(
+            n_neighbors=150,
+            min_dist=0.2,
+            n_components=2,
+            spread=1.5,
+            random_state=42
+        )
+
+        # Fit PCA and then fit UMAP on the PCA result
+        pca_result = pca.fit_transform(batch_data)
+        umap_result = umap_model.fit_transform(pca_result)
+
+        # Store coordinates in obs (for demonstration)
+        demux.obs.loc[batch_mask, 'UMAP1'] = umap_result[:, 0]
+        demux.obs.loc[batch_mask, 'UMAP2'] = umap_result[:, 1]
+    
+        # -- 5) Scatter plot
+        ax.scatter(
+            demux.obs.loc[batch_mask, 'UMAP1'],
+            demux.obs.loc[batch_mask, 'UMAP2'],
+            c=demux.obs.loc[batch_mask, 'hto_color'],
+            alpha=0.7,
+            s=1
+        )
+
+        # Title, labels, and text about variance explained
+        num_cells_batch = batch_data.shape[0]
+        ax.set_title(f"{batch}, number of cells: {num_cells_batch}")
+        ax.set_xlabel("UMAP1")
+        ax.set_ylabel("UMAP2")
+
+    # -- 6) Remove any empty subplots if batch count < rows*cols
     for j in range(i + 1, len(axes)):
         fig.delaxes(axes[j])
-        
-    handles = [plt.Line2D([0], [0], marker='o', color=color, markersize=12, linestyle='None') for color in colors]
-    labels = unique_hto_types
-    fig.legend(handles, labels, loc='center left', bbox_to_anchor=(0.9, 0.5), title='HTO Type', fontsize='large', title_fontsize='x-large')
-    
-    #plt.tight_layout(rect=[0, 0, 0.9, 1]) 
+    # -- 7) Add a legend on the right
+    handles = [plt.Line2D([0], [0], marker='o', color=hto_color_map[k], 
+                           markersize=8, linestyle='None') 
+               for k in unique_hto_types]
+    fig.legend(
+        handles, 
+        [str(k) for k in unique_hto_types], 
+        loc='center left', 
+        bbox_to_anchor=(0.9, 0.5), 
+        title='HTO Type'
+    )
+
+    plt.tight_layout(rect=[0, 0, 0.85, 1]) 
+
     plot_path = os.path.join(save_dir, 'umap_hto.png')
     plt.savefig(plot_path, dpi=300)
     plt.close()
 
 def plot_umap_HTOs_singlets(mudata, save_dir):
-    ## remove multiplets
-    demux = mudata['hashing']
-    demux_s = demux[demux.obs['hto_type_split'] != "multiplets"]
 
+    # -- 1) Subset to remove multiplets
+    demux = mudata['hashing']
+    demux_s = demux[demux.obs['hto_type_split'] != "multiplets"].copy()
+
+    # -- 2) Set up colors for each unique HTO type
     unique_hto_types = demux_s.obs['hto_type_split'].cat.categories
     color_palette = plt.get_cmap('tab20')
     colors = [color_palette(i) for i in range(len(unique_hto_types))]
     hto_color_map = dict(zip(unique_hto_types, colors))
     demux_s.obs['hto_color'] = [hto_color_map[hto_type] for hto_type in demux_s.obs['hto_type_split']]
 
+    # -- 3) Prepare subplots (rows x columns)
     batches = demux_s.obs['batch'].unique()
-
     num_batches = len(batches)
-    columns = 2 if num_batches > 1 else 1
+    cols = 2 if num_batches > 1 else 1
     rows = math.ceil(num_batches / 2)
-    fig, axes = plt.subplots(rows, columns, figsize=(18, 8 * rows))
 
+    fig, axes = plt.subplots(rows, cols, figsize=(18, 8 * rows))
     if isinstance(axes, np.ndarray):
         axes = axes.flatten()
     else:
         axes = np.array([axes])
 
+    # -- 4) For each batch, do PCA + UMAP
     for i, batch in enumerate(batches):
+        ax = axes[i]
         batch_mask = demux_s.obs['batch'] == batch
         batch_data = demux_s.X[batch_mask]
-        num = batch_data.shape[0]
 
-        umap = UMAP(n_neighbors=150, min_dist=0.2, n_components=2, spread=1.5,random_state=42)
+        # Limit PCA components for this batch
+        n_samples = batch_data.shape[0]
+        n_features = batch_data.shape[1]
+        # At least 2, but not more than min(n_samples, n_features)
+        n_pca_components = max(2, min(n_samples, n_features) - 1)
 
-        umap_result = umap.fit_transform(batch_data)
-        demux_s.obs.loc[batch_mask, ['UMAP1', 'UMAP2']] = umap_result
-    
-        ax = axes[i]
-        sc = ax.scatter(demux_s.obs.loc[batch_mask, 'UMAP1'],
-                        demux_s.obs.loc[batch_mask, 'UMAP2'],
-                        c=demux_s.obs.loc[batch_mask, 'hto_color'],
-                        alpha=0.7, s=1)
-        
-        ax.set_title(f'{batch}, number of cells: {num}')
-        ax.set_xlabel('UMAP1')
-        ax.set_ylabel('UMAP2')
+        # Re-initialize PCA and UMAP for this batch
+        pca = PCA(n_components=n_pca_components)
+        umap_model = UMAP(
+            n_neighbors=150,
+            min_dist=0.2,
+            n_components=2,
+            spread=1.5,
+            random_state=42
+        )
 
+        # Fit PCA and then fit UMAP on the PCA result
+        pca_result = pca.fit_transform(batch_data)
+        umap_result = umap_model.fit_transform(pca_result)
+
+        # Store coordinates in obs (for demonstration)
+        demux_s.obs.loc[batch_mask, 'UMAP1'] = umap_result[:, 0]
+        demux_s.obs.loc[batch_mask, 'UMAP2'] = umap_result[:, 1]
+
+        # -- 5) Scatter plot
+        ax.scatter(
+            demux_s.obs.loc[batch_mask, 'UMAP1'],
+            demux_s.obs.loc[batch_mask, 'UMAP2'],
+            c=demux_s.obs.loc[batch_mask, 'hto_color'],
+            alpha=0.7,
+            s=1
+        )
+
+        # Title, labels, and text about variance explained
+        num_cells_batch = batch_data.shape[0]
+        ax.set_title(f"{batch}, number of cells: {num_cells_batch}")
+        ax.set_xlabel("UMAP1")
+        ax.set_ylabel("UMAP2")
+
+    # -- 6) Remove any empty subplots if batch count < rows*cols
     for j in range(i + 1, len(axes)):
         fig.delaxes(axes[j])
 
-    handles = [plt.Line2D([0], [0], marker='o', color=color, markersize=12, linestyle='None') for color in colors]
-    labels = unique_hto_types
-    fig.legend(handles, labels, loc='center left', bbox_to_anchor=(0.9, 0.5), title='HTO Type', fontsize='large', title_fontsize='x-large')
-    
-    #plt.tight_layout(rect=[0, 0, 0.9, 1]) 
+    # -- 7) Add a legend on the right
+    handles = [plt.Line2D([0], [0], marker='o', color=hto_color_map[k], 
+                           markersize=8, linestyle='None') 
+               for k in unique_hto_types]
+    fig.legend(
+        handles, 
+        [str(k) for k in unique_hto_types], 
+        loc='center left', 
+        bbox_to_anchor=(0.9, 0.5), 
+        title='HTO Type'
+    )
+
+    plt.tight_layout(rect=[0, 0, 0.85, 1]) 
+
+    # -- 8) Save the figure
     plot_path = os.path.join(save_dir, 'umap_hto_singlets.png')
-    plt.savefig(plot_path, dpi=300)
+    plt.savefig(plot_path, dpi=300, bbox_inches='tight')
     plt.close()
+
 
 def main():
     parser = argparse.ArgumentParser(description="Generate various plots from MuData")

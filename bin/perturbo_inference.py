@@ -45,8 +45,25 @@ def run_perturbo(mdata_input_fp, mdata_output_fp):
     mdata["guide"].varm["intended_targets"] = intended_targets_df[
         mdata.uns["intended_target_names"]
     ]
+
+    ########################################
+    ## subset mdata for perturbo speedup ##
+    tested_guides = pairs_to_test_df["guide_id"].unique()
+    tested_genes = pairs_to_test_df["gene_id"].unique()
+
+    rna_subset = mdata["gene"][:,tested_genes]
+    grna_feature_ids = mdata["guide"].var['guide_id'].isin(tested_guides)
+    grna_subset = mdata["guide"][:,grna_feature_ids]
+
+    mdata_dict = {"gene": rna_subset, "guide": grna_subset}
+    if "hashing" in mdata.mod.keys(): mdata_dict["hashing"] = mdata["hashing"]
+    mdata_subset = md.MuData(mdata_dict)
+
+    mdata_subset = mdata_subset.copy()
+    ########################################
+    
     perturbo.PERTURBO.setup_mudata(
-            mdata,
+            mdata_subset,
             batch_key="batch",
             library_size_key="total_gene_umis",
             continuous_covariates_keys=["total_guide_umis"],
@@ -58,7 +75,7 @@ def run_perturbo(mdata_input_fp, mdata_output_fp):
             },
         )
 
-    model = perturbo.PERTURBO(mdata, likelihood="nb")
+    model = perturbo.PERTURBO(mdata_subset, likelihood="nb")
     model.train(20, lr=0.01, batch_size=128, accelerator="gpu")
 
     igvf_name_map = {
@@ -74,7 +91,6 @@ def run_perturbo(mdata_input_fp, mdata_output_fp):
         .merge(pairs_to_test_df)
     )
 
-    
     mdata = md.read(mdata_input_fp)
     mdata.uns["test_results"] = element_effects[
         [

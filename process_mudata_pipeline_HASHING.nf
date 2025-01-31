@@ -10,6 +10,7 @@ include { doublets_scrub_HASHING } from './processes/doublets_scrub_HASHING.nf'
 include { guide_assignment_cleanser } from './processes/guide_assignment_cleanser.nf'
 include { guide_assignment_sceptre } from './processes/guide_assignment_sceptre.nf'
 include { guide_assignment_mudata } from './processes/guide_assignment_mudata.nf'
+include { skipGTFDownload } from './processes/skipGTFDownload.nf'
 include { downloadGTF } from './processes/downloadGTF.nf'
 include { prepare_guide_inference } from './processes/prepare_guide_inference.nf'
 include { prepare_all_guide_inference } from './processes/prepare_all_guide_inference.nf'
@@ -55,8 +56,13 @@ workflow process_mudata_pipeline_HASHING {
     hashing_demux_anndata_collected.view()
 
     Hashing_Concat = hashing_concat(hashing_demux_anndata_collected)
-    
-    GTF_Reference = downloadGTF(params.gtf_url)
+
+    if (file(params.gtf_local_path).exists()) {
+        GTF_Reference = skipGTFDownload(file(params.gtf_local_path))
+    }
+    else {
+        GTF_Reference = downloadGTF(params.gtf_download_path)
+    }
 
     MuData = CreateMuData_HASHING(
         Preprocessed_AnnData.filtered_anndata_rna,

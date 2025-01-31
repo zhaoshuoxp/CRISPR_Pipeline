@@ -5,6 +5,7 @@ include { downloadGenome } from './processes/downloadGenome.nf'
 include { prepare_covariate } from './processes/prepare_covariate.nf'
 
 workflow prepare_mapping_pipeline {
+
     if (file(params.genome_local_path).exists()) {
         Genome = skipGenomeDownload(file(params.genome_local_path))
     }

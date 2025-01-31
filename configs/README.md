@@ -6,18 +6,19 @@ This document explains the configuration parameters for the single-cell RNA sequ
 
 ## Input Data Parameters
 
-### File Paths
+### Metadata Paths
 - `user_inference`: Path to CSV file containing user-defined cell pairs for testing
 - `guide_metadata`: Path to TSV file containing guide RNA metadata
 - `hashing_metadata`: Path to TSV file containing cell hashing metadata
 
 ### Dataset Configuration
 - `DATASET_HASHING`: Boolean flag to enable/disable dataset hashing ('true'/'false')
-- `transcriptome`: Species specification for transcriptome analysis (set to 'human')
-- `seqspecs_directory`: Directory containing YAML specification files
-- `genome_download_path`: URL for downloading the human genome (hg38) reference
-- `genome_local_path`: Local path to store the downloaded genome file
-- `gtf_url`: URL for downloading GENCODE gene annotations (v46)
+- `transcriptome`: Species specification for transcriptome analysis ('human' or 'mouse')
+- `seqspecs_directory`: Directory containing all YAML specification files and the cell barcode file(txt).
+- `genome_download_path`: Download URL for human genome (hg38) reference
+- `genome_local_path`: Local path for custom genome file
+- `gtf_download_path`: Download URL for GENCODE gene annotations (v46)
+- `gtf_local_path`:  Local path for custom GTF file
 
 ### Sequence Specification Files
 - `scRNA_seqspec_yaml`: YAML file specifying single-cell RNA sequencing parameters
@@ -26,10 +27,27 @@ This document explains the configuration parameters for the single-cell RNA sequ
 
 ## Analysis Parameters
 
-### Inference Configuration
-- `assignment_method`: Method for guide-cell assignment (set to 'sceptre')
-- `THRESHOLD`: Numerical threshold for assignments (set to 1)
-- `inference_method`: Methods for statistical inference ('sceptre,perturbo')
+### scRNA Preprocessing Configuration
+- `min_genes`: Minimum number of genes required per cell 
+- `min_cells`: Minimum number of cells required
+- `pct_mito`: Maximum percentage of mitochondrial genes allowed 
+
+### Guide Assignment Configuration
+- `assignment_method`: Method for guide-cell assignment ('sceptre' or 'cleanser')
+- `THRESHOLD`: Numerical threshold for assignments (default: 1)
+
+### Perturbation Inference Configuration
+- `inference_method`: Methods for statistical inference. 
+   - 'sceptre,perturbo': select both methods
+   - 'sceptre' or 'perturbo': Select either method individually
+
+- `inference_option`: Type of inference analysis         
+   - 'predefined_pairs': Uses a custom pairs_to_test.csv file from 'user_inference' for perturbation inference
+   - 'by_distance': Generates target-guide pairs based on a defined distance threshold
+   - 'all_by_all': Enables inference for all targets and all guides
+- `distance_from_center`: Distance threshold for the 'by_distance' strategy to select targets for pairs_to_test (default: 1,000,000)
+
+The following parameters apply to sceptre and can be adjusted accordingly:
 - `moi`: Multiplicity of infection setting ('undecided')
 - `side`: Direction of statistical tests ('both')
 - `grna_integration_strategy`: Strategy for combining guide information ('union')
@@ -38,41 +56,27 @@ This document explains the configuration parameters for the single-cell RNA sequ
 - `resampling_mechanism`: Mechanism for resampling ('default')
 - `formula_object`: Statistical formula specification ('default')
 
-### Analysis Options
-- `inference_option`: Type of inference analysis ('predefined_pairs')
-- `distance_from_center`: Distance threshold for spatial analysis (1,000,000 base pairs)
-- `min_genes`: Minimum number of genes required per cell (500)
-- `min_cells`: Minimum number of cells required (3)
-- `pct_mito`: Maximum percentage of mitochondrial genes allowed (20%)
-- `user_central_nodes`: User-defined central nodes ('undefined')
-- `central_nodes_num`: Number of central nodes to consider (2)
+### Evaluation Configuration
 
-## Input Files Configuration
+- `user_central_nodes`: User-defined central nodes 
+   - 'undefined': Uses 'central_nodes_num' to determine central nodes.
+   - Otherwise, specify the target names of interest.
+- `central_nodes_num`: Number of central nodes to include in the network analysis (default: 2)
 
-### FASTQ Files
-The pipeline accepts three types of FASTQ files:
+### FASTQ Files Configuration
+The pipeline requires full paths to FASTQ files for three modalities:
 
-1. RNA Sequencing Files (`fastq_files_rna`):
-   - Paired-end reads organized in pairs
-   - Example format: `IGVFFI1946LEGM.fastq.gz, IGVFFI5195OGCL.fastq.gz`
-
-2. Guide RNA Sequencing Files (`fastq_files_guide`):
-   - Paired-end reads for guide RNA sequencing
-   - Example format: `IGVFFI7706SWGW.fastq.gz, IGVFFI7788FDIR.fastq.gz`
-
-3. Cell Hashing Files (`fastq_files_hashing`):
-   - Paired-end reads for cell hashing
-   - Example format: `IGVFFI5460OSRQ.fastq.gz, IGVFFI1587BLSX.fastq.gz`
+- `fastq_files_rna`: Paired-end FASTQ files for scRNA sequencing.  
+- `fastq_files_guide`: Paired-end FASTQ files for gRNA sequencing.  
+- `fastq_files_hashing`: Paired-end FASTQ files for cell hashing.
 
 ### Test Files
 Specific test files are configured for validation:
 - Guide RNA test files (R1 and R2)
 - Cell hashing test files (R1 and R2)
 
-## Batch Information
-
 ### Batch Configuration
-- Batch identifiers: 'batch_a', 'batch_b'
+- Batch identifiers: example 'batch_a', 'batch_b'
 - Covariate list includes:
   - Batch information
   - Additional covariates (e.g., lane information)

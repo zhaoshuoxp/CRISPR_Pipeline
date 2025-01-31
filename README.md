@@ -272,6 +272,7 @@ This dataset comes from a large-scale CRISPR screen study published in Cell ([Ga
       # Extract the compressed whitelist file
       unzip example_data/yaml_files/3M-february-2018.txt.zip
       ```
+      Now you should see `3M-february-2018.txt` inside `example_data/yaml_files/` directory.
 
    4. Launch the pipeline:
       ```bash

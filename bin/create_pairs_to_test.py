@@ -29,9 +29,11 @@ def main(limit, mudata_path, input_gtf):
         final_candidates['intended_target_name'] = target_name
         final_candidates['pair_type'] = 'discovery'
         final_candidates.reset_index(inplace=True)
-        final_candidates_list.append(final_candidates[['guide_id', 'gene_name', 'intended_target_name', 'pair_type']].copy())
+        final_candidates_list.append(final_candidates[['guide_id', 'gene_id', 'intended_target_name', 'pair_type']].copy())
     
     final_candidates_df = pd.concat(final_candidates_list, ignore_index=True)
+    final_candidates_df['gene_id'] = final_candidates_df['gene_id'].str.split('.').str[0]
+    final_candidates_df = final_candidates_df.rename(columns={'gene_id': 'gene_name'})
     final_candidates_df.to_csv('pairs_to_test.csv', index=False)
 
 if __name__ == "__main__":

@@ -39,7 +39,7 @@ def export_output(merged_result, mudata):
     per_guide_output = (
         merged_result
         .merge(mudata.mod['guide'].var, how='left', on=['intended_target_name','guide_id'])
-        .rename(columns={'guide_id_x': 'guide_id(s)'})
+        .rename(columns={'guide_id': 'guide_id(s)'})
     )
 
     # Calculate average gene expression and cell number separately

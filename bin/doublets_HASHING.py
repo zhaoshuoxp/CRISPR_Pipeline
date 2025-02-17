@@ -20,7 +20,7 @@ def main():
     mdata = mu.read(args.input)
 
     # Run scrublet
-    scrub = scr.Scrublet(mdata.mod['gene'].X)
+    scrub = scr.Scrublet(mdata.mod['gene'].X, random_state=42)
     mdata.mod['gene'].obs['doublet_scores'], mdata.mod['gene'].obs['predicted_doublets'] = scrub.scrub_doublets()
     scrub.plot_histogram()
 

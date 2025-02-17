@@ -17,9 +17,9 @@ def main(adata_rna, adata_guide, adata_hashing, guide_metadata, gtf, moi):
     adata_hashing = ad.read_h5ad(adata_hashing)
     df_gtf = read_gtf(gtf).to_pandas()
 
-    # add targeting_chr, start, end to the targeting elements
+    # add targeting_chr, start, end to the intended_target_name elements
     gene_map_df = df_gtf.groupby('gene_name').first()[['seqname', 'start', 'end']]
-    guide_metadata = guide_metadata.merge(gene_map_df, how='left', left_on='targeting', right_index=True)
+    guide_metadata = guide_metadata.merge(gene_map_df, how='left', left_on='intended_target_name', right_index=True)
     guide_metadata = guide_metadata.rename(columns={'seqname': 'intended_target_chr', 'start': 'intended_target_start', 'end': 'intended_target_end'})
 
     ## change in adata_guide
@@ -28,16 +28,15 @@ def main(adata_rna, adata_guide, adata_hashing, guide_metadata, gtf, moi):
     # rename gene_id in guide
     adata_guide.var.rename(columns={'gene_id': 'guide_id'}, inplace=True)
 
-     # check if the lengths are the same
+    # check if the lengths are the same
     if len(guide_metadata) != len(adata_guide.var):
         print(f"The numbers of sgRNA_ID/guide_id are different: There are {len(adata_guide.var)} in guide anndata, but there are {len(guide_metadata)} in guide metadata.")
 
     adata_guide.var = adata_guide.var.merge(guide_metadata, left_on='guide_id', right_on ='guide_id', how='inner')
-    adata_guide.var[['intended_target_name', 'protospacer', 'guide_chr', 'guide_start', 'guide_end', 'intended_target_chr', 'intended_target_start', 'intended_target_end']] = guide_metadata[['targeting', 'protospacer', 'guide_chr', 'guide_start', 'guide_end','intended_target_chr', 'intended_target_start', 'intended_target_end']]
-    adata_guide.var['targeting'] =  'TRUE'
+    adata_guide.var[['intended_target_name', 'spacer', 'targeting', 'guide_chr', 'guide_start', 'guide_end', 'intended_target_chr', 'intended_target_start', 'intended_target_end']] = guide_metadata[['intended_target_name', 'spacer', 'targeting', 'guide_chr', 'guide_start', 'guide_end','intended_target_chr', 'intended_target_start', 'intended_target_end']]
 
     # reset feature_id to var_names (index)
-    guide_metadata['feature_id'] = guide_metadata['guide_id'] + "|" + guide_metadata['protospacer']
+    guide_metadata['feature_id'] = guide_metadata['guide_id'] + "|" + guide_metadata['spacer']
     adata_guide.var_names = guide_metadata['feature_id']
 
     # adding uns for guide 

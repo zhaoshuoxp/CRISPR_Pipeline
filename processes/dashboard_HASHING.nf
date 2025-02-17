@@ -40,7 +40,7 @@ process createDashboard_HASHING {
         echo "svg directory: ${svg}"
 
         process_json_HASHING.py --output_dir json_dir
-        create_dashboard_plots_HASHING.py --mudata ${mudata} --hashing_ann ${hashing_ann} --hashing_demux ${hashing_demux} --output_dir figures
+        create_dashboard_plots_HASHING.py --mudata ${mudata} --hashing_ann ${gene_ann_filtered} --hashing_demux ${hashing_demux} --output_dir figures
         create_dashboard_df_HASHING.py --json_dir json_dir --guide_fq_tbl ${guide_fq_tbl} --hashing_fq_tbl ${hashing_fq_tbl} --mudata ${mudata} --gene_ann ${gene_ann} --gene_ann_filtered ${gene_ann_filtered} --guide_ann ${guide_ann} --hashing_ann ${hashing_ann} --hashing_demux ${hashing_demux}
         create_dashboard_HASHING.py --input all_df.pkl 
         """

@@ -40,9 +40,9 @@ def find_sequence_positions(fastq_file, guide_metadata, max_reads=100000, sep='\
     
     # Load metadata and check for required column
     metadata_df = pd.read_csv(guide_metadata, sep=sep)
-    guide_column = 'protospacer' if 'protospacer' in metadata_df else 'sequence'
+    guide_column = 'spacer' if 'spacer' in metadata_df else 'sequence'
     if guide_column not in metadata_df:
-        raise ValueError("Guide metadata must contain 'protospacer' or 'sequence' column.")
+        raise ValueError("Guide metadata must contain 'spacer' or 'sequence' column.")
     
     positions = [
         s.index(n) for s in seqs for n in metadata_df[guide_column].values if n in s

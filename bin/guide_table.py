@@ -5,7 +5,7 @@ import argparse
 
 def process_table(guide_table):
     guide_metadata = pd.read_csv(guide_table, sep="\t")
-    guide_metadata[['protospacer', 'guide_id']].to_csv('guide_features.txt',
+    guide_metadata[['spacer', 'guide_id']].to_csv('guide_features.txt',
                                                            sep='\t', header=None, index=None)
 
 def main():

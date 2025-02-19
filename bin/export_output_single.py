@@ -44,7 +44,8 @@ def export_output(mudata, inference_method):
                 target = row['intended_target_name']
                 mask = mudata.mod['gene'].var['symbol'] == target
                 if mask.any():
-                    gene_data = mudata.mod['gene'].X[:, mask]
+                    mask_array = mask.to_numpy()
+                    gene_data = mudata.mod['gene'].X[:, mask_array]
                     if isinstance(gene_data, np.ndarray):
                         avg_exp = np.mean(gene_data)
                     else:  # Sparse matrix

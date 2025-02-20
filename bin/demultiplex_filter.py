@@ -25,7 +25,7 @@ def filter_adata_demux(adata_path, demux_report_path, demux_config_path, output_
 
     adata_filtered = adata[
         (adata.obs['hto_type'] != 'negative') & 
-        (adata.obs['hto_type'] != 'multiplets')
+        (adata.obs['hto_type_split'] != 'multiplets')
     ].copy()
     
     adata_filtered.write(output_path)

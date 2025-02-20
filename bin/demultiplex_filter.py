@@ -23,7 +23,11 @@ def filter_adata_demux(adata_path, demux_report_path, demux_config_path, output_
         right_on='cluster_id'
         ).set_index(adata.obs.index)
 
-    adata_filtered = adata[adata.obs['hto_type'] != 'negative'].copy()
+    adata_filtered = adata[
+        (adata.obs['hto_type'] != 'negative') & 
+        (adata.obs['hto_type'] != 'multiplets')
+    ].copy()
+    
     adata_filtered.write(output_path)
 
 def main():

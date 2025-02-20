@@ -6,7 +6,7 @@ include { CreateMuData_HASHING } from './processes/CreateMuData_HASHING.nf'
 include { demultiplex } from './processes/demultiplex.nf'
 include { filter_hashing } from './processes/filter_hashing.nf'
 include { hashing_concat } from './processes/hashing_concat.nf'
-include { doublets_scrub_HASHING } from './processes/doublets_scrub_HASHING.nf'
+//include { doublets_scrub_HASHING } from './processes/doublets_scrub_HASHING.nf'
 include { guide_assignment_cleanser } from './processes/guide_assignment_cleanser.nf'
 include { guide_assignment_sceptre } from './processes/guide_assignment_sceptre.nf'
 include { guide_assignment_mudata } from './processes/guide_assignment_mudata.nf'
@@ -73,15 +73,15 @@ workflow process_mudata_pipeline_HASHING {
         params.moi
         )
 
-    MuData_Doublets = doublets_scrub_HASHING(MuData.mudata) 
+    //MuData_Doublets = doublets_scrub_HASHING(MuData.mudata) 
     
     if (params.assignment_method == "cleanser") {
-    Guide_Assignment = guide_assignment_cleanser(MuData_Doublets.mudata_doublet, params.THRESHOLD)}
+    Guide_Assignment = guide_assignment_cleanser(MuData.mudata, params.THRESHOLD)}
     else if (params.assignment_method == "sceptre") {
-    Guide_Assignment_Matrix = guide_assignment_sceptre(MuData_Doublets.mudata_doublet)
+    Guide_Assignment_Matrix = guide_assignment_sceptre(MuData.mudata)
     Guide_Assignment = guide_assignment_mudata(
         Guide_Assignment_Matrix.guide_assignment_matrix, 
-        MuData_Doublets.mudata_doublet)
+        MuData.mudata)
     }
 
     if (params.inference_option == 'predefined_pairs') {

@@ -14,6 +14,7 @@ include { prepare_user_guide_inference } from './processes/prepare_user_guide_in
 include { inference_sceptre } from './processes/inference_sceptre.nf'
 include { inference_perturbo } from './processes/inference_perturbo.nf'
 include { inference_mudata } from './processes/inference_mudata.nf'
+include { mergedResults } from './processes/mergedResults.nf'
 
 workflow process_mudata_pipeline {
 

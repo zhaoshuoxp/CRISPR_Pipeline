@@ -1,0 +1,66 @@
+2024-12-18 15:55:16	-	nostalgic_snyder	-	79916babfedc74ed6c804b1ad2272ea7	25be887e-f6f9-44df-8bfe-d7b5888b4754	nextflow run main.nf -c input.config
+2024-12-18 16:00:16	-	deadly_woese	-	79916babfedc74ed6c804b1ad2272ea7	11b61d2d-2e9f-443d-9ca2-a7acd17730e3	nextflow run main.nf -c input.config
+2024-12-18 16:00:54	-	curious_majorana	-	79916babfedc74ed6c804b1ad2272ea7	a311b385-5a5d-4db8-a983-21df1f547dd7	nextflow run main.nf -c input.config
+2024-12-20 10:28:51	-	maniac_marconi	-	79916babfedc74ed6c804b1ad2272ea7	bd431bc5-4bf0-4cdb-a1fb-a1917f907c81	nextflow run main.nf -c input.config
+2024-12-20 10:38:55	-	crazy_morse	-	79916babfedc74ed6c804b1ad2272ea7	151f1606-9edd-4b83-9dcf-54b572e71f10	nextflow run main.nf -c input.config
+2024-12-20 10:39:45	-	desperate_rutherford	-	79916babfedc74ed6c804b1ad2272ea7	0666598d-914f-4689-9a47-d7aa89dac22e	nextflow run main.nf -c input.config
+2024-12-20 10:52:36	-	nauseous_spence	-	79916babfedc74ed6c804b1ad2272ea7	9f79523e-9d7f-460c-b016-3f68e80a98bc	nextflow run main.nf -c input.config
+2024-12-20 10:59:34	9m 34s	kickass_noyce	ERR	79916babfedc74ed6c804b1ad2272ea7	4d8d6f3b-7879-46a0-9894-303459c314d1	nextflow run main.nf -c input.config
+2024-12-20 11:09:48	12.4s	cranky_baekeland	ERR	79916babfedc74ed6c804b1ad2272ea7	2d2bea0b-6a7c-4210-abfa-3605175eb1f5	nextflow run main.nf -c input.config
+2024-12-20 11:21:33	-	soggy_wozniak	-	79916babfedc74ed6c804b1ad2272ea7	6b84c355-509d-4a3b-802e-c9b323deeb25	nextflow run main.nf -c input.config
+2024-12-20 11:23:13	12m 39s	elated_darwin	ERR	79916babfedc74ed6c804b1ad2272ea7	396f80d2-0367-4887-a77b-e6a06c0e3185	nextflow run main.nf -c input.config
+2024-12-20 11:45:27	14m 59s	angry_pasteur	ERR	79916babfedc74ed6c804b1ad2272ea7	0a81925a-eeb0-4ac0-bbc5-519e2333b7c6	nextflow run main.nf -c input.config
+2024-12-20 12:41:51	1m 55s	deadly_poincare	ERR	79916babfedc74ed6c804b1ad2272ea7	fe67bca3-f2b4-48d0-9892-ed786bdad0d9	nextflow run main.nf -c input.config
+2024-12-20 12:43:49	15m 8s	jolly_solvay	ERR	79916babfedc74ed6c804b1ad2272ea7	e92825b5-cc1d-4f7f-afbc-7bc6548572d4	nextflow run main.nf -c input.config
+2024-12-20 13:02:06	15m	angry_lamarck	ERR	79916babfedc74ed6c804b1ad2272ea7	badc20e9-3a8f-48d4-b5b1-d32f263eddb3	nextflow run main.nf -c input.config
+2024-12-20 13:38:28	18m 44s	wise_bell	ERR	79916babfedc74ed6c804b1ad2272ea7	375a4ced-b62f-47c5-9b8f-0cf172099ccb	nextflow run main.nf -c input.config
+2024-12-20 14:40:44	28m 5s	golden_blackwell	ERR	79916babfedc74ed6c804b1ad2272ea7	aaea512b-8dad-4191-84f0-127a5bdb4686	nextflow run main.nf -c input.config
+2024-12-20 15:49:34	23.7s	backstabbing_sammet	ERR	79916babfedc74ed6c804b1ad2272ea7	57f7c853-c646-41d7-a1cc-7ec91b2ac854	nextflow run main.nf -c input.config
+2024-12-20 15:51:04	42m 50s	dreamy_watson	ERR	79916babfedc74ed6c804b1ad2272ea7	ad8662ef-ad99-4a8e-9752-1a67bc504d2f	nextflow run main.nf -c input.config
+2024-12-20 17:17:35	44m 57s	tiny_celsius	ERR	79916babfedc74ed6c804b1ad2272ea7	436d549a-fef1-4afb-8f37-e3873bd00069	nextflow run main.nf -c input.config
+2025-01-06 12:55:26	-	adoring_snyder	-	79916babfedc74ed6c804b1ad2272ea7	ed3039a3-d4c3-43aa-8841-b8408d51b153	nextflow run main.nf -c input_9p21.config
+2025-01-06 12:58:02	-	clever_rubens	-	79916babfedc74ed6c804b1ad2272ea7	57c86cbb-e22d-4953-a39d-3d3e01c4959e	nextflow run main.nf -c input_9p21.config
+2025-01-06 13:01:56	-	serene_swirles	-	79916babfedc74ed6c804b1ad2272ea7	d088816d-c205-43e5-8c90-cd7ad972c3df	nextflow run main.nf -c input_9p21.config
+2025-01-06 13:15:03	-	exotic_franklin	-	79916babfedc74ed6c804b1ad2272ea7	cbf93d68-1849-4294-9f10-2ec0f00b5719	nextflow run main.nf -c input_9p21.config
+2025-01-06 13:18:31	-	lonely_feynman	-	79916babfedc74ed6c804b1ad2272ea7	4b47d520-357b-4508-a893-8be69cd65acb	nextflow run main.nf -c input_9p21.config
+2025-01-06 14:36:56	-	extravagant_swartz	-	79916babfedc74ed6c804b1ad2272ea7	958aa643-97f8-4848-bac9-d7148f702dcb	nextflow run main.nf -c input_9p21.config
+2025-01-06 14:44:05	-	cranky_bose	-	79916babfedc74ed6c804b1ad2272ea7	0b0930f4-87e3-4903-b3c5-3ad830a58ae1	nextflow run main.nf -c input_9p21.config
+2025-01-06 14:45:31	13m 49s	zen_mahavira	ERR	79916babfedc74ed6c804b1ad2272ea7	ce4867c6-87a6-4477-ba75-2f686327e349	nextflow run main.nf -c input_9p21.config
+2025-01-06 15:10:43	9m 18s	ecstatic_caravaggio	ERR	79916babfedc74ed6c804b1ad2272ea7	ba52bb7f-94c5-4905-8a48-4a84dd6a5043	nextflow run main.nf -c input_9p21.config
+2025-01-06 15:26:11	4.4s	scruffy_swirles	ERR	79916babfedc74ed6c804b1ad2272ea7	cbd46e5f-3d5b-4232-8992-f86dcb79123e	nextflow run main.nf -c input_9p21.config
+2025-01-06 15:26:38	5.3s	exotic_newton	ERR	79916babfedc74ed6c804b1ad2272ea7	02688893-5404-4fbb-9e86-09cc27446a66	nextflow run main.nf -c input_9p21.config
+2025-01-06 15:27:00	8m 11s	hopeful_montalcini	ERR	79916babfedc74ed6c804b1ad2272ea7	fcbcaec3-1d40-46b8-8832-cbe07be93996	nextflow run main.nf -c input_9p21.config
+2025-01-06 15:37:30	8m 10s	spontaneous_feynman	ERR	79916babfedc74ed6c804b1ad2272ea7	f5a3ea9b-985f-4dc5-a5a0-16ff73969dd0	nextflow run main.nf -c input_9p21.config
+2025-01-07 08:55:15	15m 4s	shrivelled_lamarck	ERR	79916babfedc74ed6c804b1ad2272ea7	1c554508-0037-410b-b1a2-8db4b4238719	nextflow run main.nf -c input_9p21.config
+2025-01-07 09:12:51	9m 18s	infallible_mcclintock	ERR	79916babfedc74ed6c804b1ad2272ea7	8877c2b2-0746-4f6a-ac8e-09d20db2e3a1	nextflow run main.nf -c input_9p21.config
+2025-01-07 09:41:11	4s	disturbed_stallman	ERR	79916babfedc74ed6c804b1ad2272ea7	0815cd2c-a948-4b9c-bfcb-b73b6edb105a	nextflow run main.nf -c input_9p21.config
+2025-01-07 09:56:55	9m 29s	small_rutherford	ERR	79916babfedc74ed6c804b1ad2272ea7	893ab6b3-7069-46ed-a428-bca3a95756e0	nextflow run main.nf -c input_9p21.config
+2025-01-07 12:50:46	9m 28s	golden_jennings	ERR	79916babfedc74ed6c804b1ad2272ea7	43622636-0b46-4b3d-9ab5-994cbe4919e2	nextflow run main.nf -c input_9p21.config
+2025-01-08 10:41:56	4m 22s	golden_shockley	ERR	79916babfedc74ed6c804b1ad2272ea7	f443f55c-dba1-49ad-8fbd-dfb5c789c2a0	nextflow run main.nf -c input_9p21.config
+2025-01-08 10:47:10	9m 36s	small_meninsky	ERR	79916babfedc74ed6c804b1ad2272ea7	4e2290c0-7713-4c67-bd5f-e70a2095766c	nextflow run main.nf -c input_9p21.config
+2025-01-08 11:22:49	9m 29s	special_cantor	ERR	79916babfedc74ed6c804b1ad2272ea7	857dec1a-422e-4de8-b2aa-d2ce60648f10	nextflow run main.nf -c input_9p21.config
+2025-01-08 11:36:16	10m 33s	focused_mayer	ERR	79916babfedc74ed6c804b1ad2272ea7	59ac9e54-8cc4-4612-acf4-c6e3e1b98b36	nextflow run main.nf -c input_9p21.config
+2025-01-08 13:07:26	15m 4s	irreverent_laplace	ERR	79916babfedc74ed6c804b1ad2272ea7	2c8901b6-c253-4586-aead-21f56e4fa42c	nextflow run main.nf -c input_9p21.config
+2025-01-08 13:23:06	15m 28s	modest_aryabhata	ERR	79916babfedc74ed6c804b1ad2272ea7	71687683-55e8-4c01-8740-8c73daf6d9a8	nextflow run main.nf -c input_9p21.config
+2025-01-08 13:39:56	15m 4s	astonishing_volta	ERR	79916babfedc74ed6c804b1ad2272ea7	74eac6c2-76e9-4fec-9d52-42d4c10b25d7	nextflow run main.nf -c input_9p21.config
+2025-01-08 18:06:39	10m 4s	fervent_sammet	ERR	79916babfedc74ed6c804b1ad2272ea7	3b454e86-da5a-407b-ba2d-1e0e07f76e97	nextflow run main.nf -c input_9p21.config
+2025-01-10 15:17:53	10m 51s	determined_lattes	ERR	79916babfedc74ed6c804b1ad2272ea7	26841a89-b7a0-4e2c-9146-a60b174219f8	nextflow run main.nf -c input_9p21.config
+2025-01-10 15:37:41	10m 26s	kickass_meucci	ERR	79916babfedc74ed6c804b1ad2272ea7	4bc4c388-fb26-4384-b623-b7b6f086d20e	nextflow run main.nf -c input_9p21.config
+2025-01-10 15:53:42	7.7s	amazing_becquerel	ERR	79916babfedc74ed6c804b1ad2272ea7	fb6665cb-6a3e-40ad-8207-4c8d1f077ebf	nextflow run main.nf -c input_9p21.config
+2025-01-10 16:03:44	42.9s	awesome_ride	ERR	79916babfedc74ed6c804b1ad2272ea7	b5e7a325-67a9-422a-85b4-d62df90b3716	nextflow run main.nf -c input_9p21.config
+2025-01-10 16:06:18	54.3s	lethal_mccarthy	ERR	79916babfedc74ed6c804b1ad2272ea7	722d2711-73a0-4b74-ba97-0b22e154e274	nextflow run main.nf -c input_9p21.config
+2025-01-10 16:08:01	10m 20s	boring_becquerel	ERR	79916babfedc74ed6c804b1ad2272ea7	5bd2eff5-5155-4206-87bd-892d8ac10a7c	nextflow run main.nf -c input_9p21.config
+2025-01-13 09:45:28	7m 10s	magical_banach	ERR	79916babfedc74ed6c804b1ad2272ea7	a8a49d9e-89a1-49ac-a58d-868973eca8a8	nextflow run main.nf -c input_9p21.config
+2025-01-13 09:57:52	7m 4s	desperate_waddington	ERR	79916babfedc74ed6c804b1ad2272ea7	f1c90123-4cbc-4610-88ec-bbc5b43fed92	nextflow run main.nf -c input_9p21.config
+2025-01-13 10:48:58	8m 15s	silly_yalow	ERR	79916babfedc74ed6c804b1ad2272ea7	f8256c1b-1eaf-45e4-89c9-cb04f31c3639	nextflow run main.nf -c input_9p21.config
+2025-01-13 10:58:07	8m 10s	crazy_dalembert	ERR	79916babfedc74ed6c804b1ad2272ea7	55ce1b5a-c70f-4160-91b7-2b0cb5833076	nextflow run main.nf -c input_9p21.config
+2025-01-13 11:06:43	9m 9s	lonely_goldstine	ERR	79916babfedc74ed6c804b1ad2272ea7	d4b7f504-ea09-439e-ba1e-ea3ced919cc2	nextflow run main.nf -c input_9p21.config
+2025-01-13 20:48:09	-	big_hodgkin	-	79916babfedc74ed6c804b1ad2272ea7	b171dd14-84b7-44df-b5ad-368b1f0ff37c	nextflow run main.nf -c input_9p21.config
+2025-01-13 20:49:43	9m 52s	crazy_edison	ERR	79916babfedc74ed6c804b1ad2272ea7	a506b96f-c7bd-47c2-a383-de1ceb0d0832	nextflow run main.nf -c input_9p21.config
+2025-01-14 09:23:15	9m 22s	trusting_pare	ERR	79916babfedc74ed6c804b1ad2272ea7	64f25d40-0ac4-4cf9-be45-419239cfde7e	nextflow run main.nf -c input_9p21.config
+2025-01-14 09:53:54	35.6s	crazy_faraday	ERR	79916babfedc74ed6c804b1ad2272ea7	7ef1c765-dff6-4cbe-aa0b-dbb65dc462ec	nextflow run main.nf -c input_9p21.config
+2025-01-14 09:58:26	4.9s	serene_swartz	ERR	79916babfedc74ed6c804b1ad2272ea7	f11b1ed7-c954-4f3b-9292-67bf7f22b936	nextflow run main.nf -c input_9p21.config
+2025-01-14 09:59:12	17m 35s	nasty_watson	ERR	79916babfedc74ed6c804b1ad2272ea7	3a7bf80f-22b8-412d-a575-7f37445f0846	nextflow run main.nf -c input_9p21.config
+2025-01-14 10:49:05	9m 8s	fabulous_pare	ERR	79916babfedc74ed6c804b1ad2272ea7	12bfdbac-d987-4792-b252-b528794b2869	nextflow run main.nf -c input_9p21.config
+2025-01-15 10:36:52	9m 9s	modest_angela	ERR	79916babfedc74ed6c804b1ad2272ea7	bcd724d0-7200-4e8b-a5cb-eea1e997a828	nextflow run main.nf -c input_9p21.config
+2025-01-15 12:31:49	9m 27s	kickass_bartik	ERR	79916babfedc74ed6c804b1ad2272ea7	114b7b7a-555e-4c5d-bf13-2ccaf16cbbec	nextflow run main.nf -c input_9p21.config

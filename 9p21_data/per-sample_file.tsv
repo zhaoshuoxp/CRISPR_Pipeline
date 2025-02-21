@@ -1,0 +1,3 @@
+R1_path	R1_md5sum	R2_path	R2_md5sum	measurement_sets	Lane	file_modality	Flowcell ID	Seqspecs
+9p21_tiny_gRNA_R1	db711199f36a0200a841a3bf957bfdfc	9p21_tiny_gRNA_R2	7a1cbd10517d5c10dea29532ac7af2f1	tiny	1	gRNA		
+9p21_tiny_cDNA_R1	0e0ba41043fe480cc4780317bb3375aa	9p21_tiny_cDNA_R2	ad31ef07c5015aa76c3c44a3f7a96018	tiny	1	scRNA	H5HLYDSX7	

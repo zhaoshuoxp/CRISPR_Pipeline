@@ -308,5 +308,4 @@ https://conda.anaconda.org/conda-forge/noarch/muon-0.1.6-pyhd8ed1ab_0.conda
 https://conda.anaconda.org/conda-forge/noarch/nbconvert-pandoc-7.16.4-hd8ed1ab_1.conda
 https://conda.anaconda.org/conda-forge/noarch/nbconvert-7.16.4-hd8ed1ab_1.conda
 https://conda.anaconda.org/bioconda/noarch/kb-python-0.28.2-pyhdfd78af_0.tar.bz2
-https://anaconda.org/bioconda/gtfparse/2.5.0/download/noarch/gtfparse-2.5.0-pyh7cba7a3_0.tar.bz2
-https://anaconda.org/conda-forge/polars/0.20.31/download/linux-64/polars-0.20.31-py39h19e796d_0.conda
+https://anaconda.org/conda-forge/git/2.48.1/download/linux-64/git-2.48.1-pl5321h59d505e_0.conda

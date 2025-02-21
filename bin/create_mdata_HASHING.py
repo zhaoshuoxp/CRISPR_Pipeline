@@ -8,6 +8,7 @@ from muon import MuData
 import matplotlib.pyplot as plt
 import os
 from GTFProcessing import GTFProcessing
+from gtfparse import read_gtf
 
 def main(adata_rna, adata_guide, adata_hashing, guide_metadata, gtf, moi):
     # Load the data
@@ -15,8 +16,7 @@ def main(adata_rna, adata_guide, adata_hashing, guide_metadata, gtf, moi):
     adata_rna = ad.read_h5ad(adata_rna)
     adata_guide = ad.read_h5ad(adata_guide)
     adata_hashing = ad.read_h5ad(adata_hashing)
-    gtf = GTFProcessing(gtf)
-    df_gtf = gtf.get_gtf_df() 
+    df_gtf = read_gtf(gtf).to_pandas()
 
     # add targeting_chr, start, end to the targeting elements
     gene_map_df = df_gtf.groupby('gene_name')[['chr', 'start', 'end']].first()

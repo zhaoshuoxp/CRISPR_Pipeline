@@ -23,10 +23,10 @@ dependencies:
   - umap-learn
   - scikit-learn
   - cmdstanpy
-  - gtfparse
-  - polars=0.20.31
+  - git
   - pip:
       - openpyxl
       - seqspec
       - adjustText
       - igraph
+      - git+https://github.com/LucasSilvaFerreira/GTFProcessing.git

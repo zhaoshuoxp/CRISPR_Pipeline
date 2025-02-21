@@ -1,6 +1,8 @@
 ## This is a modified version of the [IGVF CRISPR pipeline](https://github.com/pinellolab/CRISPR_Pipeline), specifically adapted for TAPseq and used in the CRISPR Jamboree 2025. After cloning the repository, you will need to decompress the barcode whitelist using the following command:  
 
-```gunzip 9p21_data/yaml_files/3M-february-2018.txt.gz```
+```bash
+gunzip 9p21_data/yaml_files/3M-february-2018.txt.gz
+```
 
 
 

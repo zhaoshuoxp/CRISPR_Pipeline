@@ -24,6 +24,7 @@ dependencies:
   - scikit-learn
   - cmdstanpy
   - gtfparse
+  - polars=0.20.31
   - pip:
       - openpyxl
       - seqspec

@@ -1,3 +1,10 @@
+## This is a modified version of the [IGVF CRISPR pipeline](https://github.com/pinellolab/CRISPR_Pipeline), specifically adapted for TAPseq and used in the CRISPR Jamboree 2025. After cloning the repository, you will need to decompress the barcode whitelist using the following command:  
+
+```gunzip 9p21_data/yaml_files/3M-february-2018.txt.gz```
+
+
+
+
 # CRISPR Pipeline
 
 A comprehensive pipeline for single-cell Perturb-Seq analysis that enables robust processing and analysis of CRISPR screening data at single-cell resolution.
@@ -261,7 +268,7 @@ This dataset comes from a large-scale CRISPR screen study published in Cell ([Ga
       wget https://github.com/10XGenomics/bamtofastq/releases/download/v1.4.1/bamtofastq_linux; chmod +x bamtofastq_linux
       wget https://sra-pub-src-1.s3.amazonaws.com/SRR7967488/pilot_highmoi_screen.1_CGTTACCG.grna.bam.1;mv pilot_highmoi_screen.1_CGTTACCG.grna.bam.1 pilot_highmoi_screen.1_CGTTACCG.grna.bam
       ./bamtofastq_linux --nthreads="$NTHREADS" pilot_highmoi_screen.1_CGTTACCG.grna.bam bam_pilot_guide_1
-
+      
       wget https://sra-pub-src-1.s3.amazonaws.com/SRR7967482/pilot_highmoi_screen.1_SI_GA_G1.bam.1;mv pilot_highmoi_screen.1_SI_GA_G1.bam.1 pilot_highmoi_screen.1_SI_GA_G1.bam
       ./bamtofastq_linux --nthreads="$NTHREADS" pilot_highmoi_screen.1_SI_GA_G1.bam bam_pilot_scrna_1
       ```

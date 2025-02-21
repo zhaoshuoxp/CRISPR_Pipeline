@@ -17,6 +17,7 @@ process CreateMuData {
   
   script:
         """
+        pip install git+https://github.com/LucasSilvaFerreira/GTFProcessing.git
         create_mdata.py ${adata_rna} ${adata_guide} ${guide_metadata} ${gtf_file} ${moi}
         mv concatenated_adata.h5ad guide_concatenated_adata.h5ad
         """

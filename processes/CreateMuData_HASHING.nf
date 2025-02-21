@@ -18,6 +18,7 @@ process CreateMuData_HASHING {
   
   script:
         """
+        pip install git+https://github.com/LucasSilvaFerreira/GTFProcessing.git
         create_mdata_HASHING.py ${adata_rna} ${adata_guide} ${adata_hashing} ${guide_metadata} ${gtf_file} ${moi}
         mv concatenated_adata.h5ad guide_concatenated_adata.h5ad
         """

@@ -7,14 +7,15 @@ import numpy as np
 from muon import MuData
 import matplotlib.pyplot as plt
 import os
-from gtfparse import read_gtf
+from GTFProcessing import GTFProcessing
 
 def main(adata_rna, adata_guide, guide_metadata, gtf, moi):
     # Load the data
     guide_metadata = pd.read_csv(guide_metadata, sep='\t')
     adata_rna = ad.read_h5ad(adata_rna)
     adata_guide = ad.read_h5ad(adata_guide)
-    df_gtf = read_gtf(gtf).to_pandas()
+    gtf = GTFProcessing(gtf)
+    df_gtf = gtf.get_gtf_df()
 
     # add targeting_chr, start, end to the targeting elements
     gene_map_df = df_gtf.groupby('gene_name')[['chr', 'start', 'end']].first()

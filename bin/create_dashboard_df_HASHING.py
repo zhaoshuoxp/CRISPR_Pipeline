@@ -103,7 +103,7 @@ def create_json_df(json_dir):
         json_df = pd.concat(list_of_params, ignore_index=True)
     return json_df
 
-def create_dashboard_df(guide_fq_tbl, hashing_fq_tbl, mudata_path, gene_ann_path, filtered_ann_path, guide_ann_path, hashing_ann_path, hashing_demux_path):
+def create_dashboard_df(guide_fq_tbl, hashing_fq_tbl, mudata_path, gene_ann_path, filtered_ann_path, guide_ann_path, hashing_ann_path, hashing_demux_path, hashing_unfiltered_demux_path):
     ### Create df for cell statistics
     guide_fq_table = pd.read_csv(guide_fq_tbl)
     hashing_fq_table = pd.read_csv(hashing_fq_tbl)
@@ -113,6 +113,7 @@ def create_dashboard_df(guide_fq_tbl, hashing_fq_tbl, mudata_path, gene_ann_path
     gene_filtered_ann =ad.read_h5ad(filtered_ann_path)
     hashing_ann = ad.read_h5ad(hashing_ann_path)
     hashing_demux = ad.read_h5ad(hashing_demux_path)
+    hashing_unfiltered_demux = ad.read_h5ad(hashing_unfiltered_demux_path)
 
     intersection_guides_and_scrna_unfitered = set(gene_ann.obs.index).intersection(guide_ann.obs.index)
     intersection_guidebc_scrnabc = len(intersection_guides_and_scrna_unfitered)
@@ -120,7 +121,7 @@ def create_dashboard_df(guide_fq_tbl, hashing_fq_tbl, mudata_path, gene_ann_path
     intersection_guides_and_scrna_and_hashing_unfitered = set(gene_ann.obs.index).intersection(guide_ann.obs.index).intersection(hashing_ann.obs.index)
     intersection_guidebc_scrnabc_hashingbc = len(intersection_guides_and_scrna_and_hashing_unfitered)
 
-    cn_highlight=f"Number of guide barcodes (unfiltered) intersecting with scRNA barcodes (unfiltered): {human_format(intersection_guidebc_scrnabc)}, Number of guide barcodes(unfiltered) intersecting with both scRNA and HTO barcodes(unfiltered): {human_format(intersection_guidebc_scrnabc_hashingbc)}, Number of cells after filtering by the minimal number of genes to consider a cell usable: {human_format(gene_filtered_ann.shape[0])},  Number of cells after filtering negative HTOs: {human_format(hashing_demux.shape[0])}, Number of cells after filtering doublets: {human_format(mudata.shape[0])}"
+    cn_highlight=f"Number of guide barcodes (unfiltered) intersecting with scRNA barcodes (unfiltered): {human_format(intersection_guidebc_scrnabc)}, Number of guide barcodes(unfiltered) intersecting with both scRNA and HTO barcodes(unfiltered): {human_format(intersection_guidebc_scrnabc_hashingbc)}, Number of cells after filtering by the minimal number of genes to consider a cell usable: {human_format(gene_filtered_ann.shape[0])},  Number of cells after filtering negative HTOs: {human_format(sum(hashing_unfiltered_demux.obs['hto_type_split'] != 'negative'))}, Number of cells after filtering negative and multiplet HTOs: {human_format(mudata.shape[0])}"
 
     gn_highlight=f"Number of genes detected after filtering: {human_format(mudata.mod['gene'].var.shape[0])}, Mean UMI counts per cell after filtering: {human_format(mudata.mod['gene'].X.sum(axis=1).mean())}"
     cell_stats = new_block('Filtering Summary', '', 'Filter to select high quality cells', cn_highlight, True)
@@ -141,17 +142,8 @@ def create_dashboard_df(guide_fq_tbl, hashing_fq_tbl, mudata_path, gene_ann_path
     ### Create guide inference df
     inference_table = pd.DataFrame({k: v for k, v in mudata.uns['test_results'].items()})
     targets = mudata.mod['guide'].var['intended_target_name'].values
-    # target_perturbed_005 = inference_table[inference_table['intended_target_name'].isin(set(targets))& 
-    #                                 (inference_table['p_value'] < 0.05)]
-    # target_perturbed_001 = inference_table[inference_table['intended_target_name'].isin(set(targets))& 
-    #                                 (inference_table['p_value'] < 0.01)]
-    # direct_target_perturbed_005 = target_perturbed_005[target_perturbed_005['pair_type'] == "Direct targeting"]
-    # negative_target_perturbed_005 = target_perturbed_005[target_perturbed_005['pair_type'] == "Targeting_negative_control"]
-    # gi_highlight = f"Total tested sgRNA-gene pairs: {inference_table.shape[0]}, Total tested significant sgRNA-gene pairs(p_value<0.05): {len(target_perturbed_005)}, Total number of Direct-Targeting pairs presenting significant perturbation effects(p<0.05): {len(direct_target_perturbed_005)}, Percentage of total tested Direct-Targeting pairs presenting significant perturbation effects(p<0.05): {np.round((len(direct_target_perturbed_005)/inference_table.shape[0])*100,2)}%, Total number of Negative pairs presenting significant perturbation effect(p<0.05): {len(negative_target_perturbed_005)}"
-    
+
     gi_highlight = f"Total tested sgRNA-gene pairs: {inference_table.shape[0]}"
-    # gi_table_005 = inference_table.copy()
-    # gi_table_005['significant'] = gi_table_005['p_value'].apply(lambda x: True if x < 0.05 else False)
 
     gi_df = new_block('Inference', '', 'Guide Inference', gi_highlight, True, inference_table,
             table_description='Inference table gene, guide, target name, lfc2, p-value, pair-type)')
@@ -215,8 +207,7 @@ def create_dashboard_df(guide_fq_tbl, hashing_fq_tbl, mudata_path, gene_ann_path
     inf_img_df = new_block('Inference', '', 'Visualization', iv_highlight, True, image=all_plots, image_description=all_descs)
     
     ### Create hashing demultiplex df
-    non_multiplet_count = hashing_demux.obs[hashing_demux.obs['hto_type_split'] != 'multiplets'].shape[0]
-    hs_highlight = f"% of cells identified as negative(no signals to any hashtags): {(gene_filtered_ann.shape[0] - hashing_demux.shape[0])/ gene_filtered_ann.shape[0] *100:.2f}, % of cells identified as singlet positives (positive signal to one hashtag) after demultiplex: {non_multiplet_count / hashing_demux.shape[0] *100:.2f}"
+    hs_highlight = f"% of cells identified as negative(no signals to any hashtags): {(hashing_unfiltered_demux.obs['hto_type_split'] == 'negative').mean() *100:.2f}, % of cells identified as singlet positives (positive signal to one hashtag) after demultiplex: {hashing_demux.shape[0]/hashing_unfiltered_demux.shape[0]*100:.2f}"
     ### adding barplot
 
     hs_demux_df = new_block('Hashing', '', 'Demultiplex', hs_highlight, True, 
@@ -249,13 +240,15 @@ def main():
     parser.add_argument('--guide_ann', required=True, help='Path to the guide anndata file')
     parser.add_argument('--hashing_ann', required=True, help='Path to the hashing anndata file')
     parser.add_argument('--hashing_demux', required=True, help='Path to the hashing demux anndata file')
+    parser.add_argument('--hashing_unfiltered_demux', required=True, help='Path to the hashing unfiltered demux anndata file')
+    
     parser.add_argument('--output', type=str, default='all_df.pkl', help='Path to output pickle file')
     
     args = parser.parse_args()
 
     json_df = create_json_df(args.json_dir)
     ## adding plots
-    guide_check_df, hashing_check_df, cell_stats, gene_stats, rna_img_df, guide_img_df, gi_df, gs_img_df, inf_img_df, hs_demux_df = create_dashboard_df(args.guide_fq_tbl, args.hashing_fq_tbl, args.mudata, args.gene_ann, args.gene_ann_filtered, args.guide_ann, args.hashing_ann, args.hashing_demux)
+    guide_check_df, hashing_check_df, cell_stats, gene_stats, rna_img_df, guide_img_df, gi_df, gs_img_df, inf_img_df, hs_demux_df = create_dashboard_df(args.guide_fq_tbl, args.hashing_fq_tbl, args.mudata, args.gene_ann, args.gene_ann_filtered, args.guide_ann, args.hashing_ann, args.hashing_demux, args.hashing_unfiltered_demux)
     
     ## consider the order of modules
     json_df_sorted = json_df.sort_values(by='description', ascending=True)

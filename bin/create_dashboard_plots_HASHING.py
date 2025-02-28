@@ -157,9 +157,8 @@ def plot_cells_per_guide(mudata, save_dir):
     plt.savefig(plot_path, dpi=300)
     plt.close()
 
-def plot_cell_counts_HTOs(hashing_ann, hashing_demux, save_dir):
-    cell_counts = hashing_demux.obs['hto_type_split'].value_counts()
-    cell_counts['negative'] = hashing_ann.shape[0] - hashing_demux.shape[0]
+def plot_cell_counts_HTOs(unfiltered_hashing_demux, save_dir):
+    cell_counts = unfiltered_hashing_demux.obs['hto_type_split'].value_counts()
     cell_counts_sort = cell_counts.sort_index()
 
     plt.figure(figsize=(8, 6))
@@ -174,16 +173,14 @@ def plot_cell_counts_HTOs(hashing_ann, hashing_demux, save_dir):
     plt.savefig(plot_path, dpi=300)
     plt.close()
 
-def plot_umap_HTOs(mudata, save_dir):
-    # hashing_demux
-    demux = mudata['hashing']
-    unique_hto_types = demux.obs['hto_type_split'].cat.categories
+def plot_umap_HTOs(unfiltered_hashing_demux, save_dir):
+    unique_hto_types = unfiltered_hashing_demux.obs['hto_type_split'].cat.categories
     color_palette = plt.get_cmap('tab20')
     colors = [color_palette(i) for i in range(len(unique_hto_types))]
     hto_color_map = dict(zip(unique_hto_types, colors))
-    demux.obs['hto_color'] = [hto_color_map[hto_type] for hto_type in demux.obs['hto_type_split']]
+    unfiltered_hashing_demux.obs['hto_color'] = [hto_color_map[hto_type] for hto_type in unfiltered_hashing_demux.obs['hto_type_split']]
 
-    batches = demux.obs['batch'].unique()
+    batches = unfiltered_hashing_demux.obs['batch'].unique()
 
     num_batches = len(batches)
     columns = 2 if num_batches > 1 else 1
@@ -197,8 +194,8 @@ def plot_umap_HTOs(mudata, save_dir):
 
     for i, batch in enumerate(batches):
         ax = axes[i]
-        batch_mask = demux.obs['batch'] == batch
-        batch_data = demux.X[batch_mask]
+        batch_mask = unfiltered_hashing_demux.obs['batch'] == batch
+        batch_data = unfiltered_hashing_demux.X[batch_mask]
 
         # Limit PCA components for this batch
         n_samples = batch_data.shape[0]
@@ -221,14 +218,14 @@ def plot_umap_HTOs(mudata, save_dir):
         umap_result = umap_model.fit_transform(pca_result)
 
         # Store coordinates in obs (for demonstration)
-        demux.obs.loc[batch_mask, 'UMAP1'] = umap_result[:, 0]
-        demux.obs.loc[batch_mask, 'UMAP2'] = umap_result[:, 1]
+        unfiltered_hashing_demux.obs.loc[batch_mask, 'UMAP1'] = umap_result[:, 0]
+        unfiltered_hashing_demux.obs.loc[batch_mask, 'UMAP2'] = umap_result[:, 1]
     
         # -- 5) Scatter plot
         ax.scatter(
-            demux.obs.loc[batch_mask, 'UMAP1'],
-            demux.obs.loc[batch_mask, 'UMAP2'],
-            c=demux.obs.loc[batch_mask, 'hto_color'],
+            unfiltered_hashing_demux.obs.loc[batch_mask, 'UMAP1'],
+            unfiltered_hashing_demux.obs.loc[batch_mask, 'UMAP2'],
+            c=unfiltered_hashing_demux.obs.loc[batch_mask, 'hto_color'],
             alpha=0.7,
             s=1
         )
@@ -243,9 +240,7 @@ def plot_umap_HTOs(mudata, save_dir):
     for j in range(i + 1, len(axes)):
         fig.delaxes(axes[j])
     # -- 7) Add a legend on the right
-    handles = [plt.Line2D([0], [0], marker='o', color=hto_color_map[k], 
-                           markersize=8, linestyle='None') 
-               for k in unique_hto_types]
+    handles = [plt.Line2D([0], [0], marker='o', color=hto_color_map[k], markersize=8, linestyle='None') for k in unique_hto_types]
     fig.legend(
         handles, 
         [str(k) for k in unique_hto_types], 
@@ -260,21 +255,17 @@ def plot_umap_HTOs(mudata, save_dir):
     plt.savefig(plot_path, dpi=300)
     plt.close()
 
-def plot_umap_HTOs_singlets(mudata, save_dir):
-
-    # -- 1) Subset to remove multiplets
-    demux = mudata['hashing']
-    demux_s = demux[demux.obs['hto_type_split'] != "multiplets"].copy()
+def plot_umap_HTOs_singlets(hashing_demux, save_dir):
 
     # -- 2) Set up colors for each unique HTO type
-    unique_hto_types = demux_s.obs['hto_type_split'].cat.categories
+    unique_hto_types = hashing_demux.obs['hto_type_split'].cat.categories
     color_palette = plt.get_cmap('tab20')
     colors = [color_palette(i) for i in range(len(unique_hto_types))]
     hto_color_map = dict(zip(unique_hto_types, colors))
-    demux_s.obs['hto_color'] = [hto_color_map[hto_type] for hto_type in demux_s.obs['hto_type_split']]
+    hashing_demux.obs['hto_color'] = [hto_color_map[hto_type] for hto_type in hashing_demux.obs['hto_type_split']]
 
     # -- 3) Prepare subplots (rows x columns)
-    batches = demux_s.obs['batch'].unique()
+    batches = hashing_demux.obs['batch'].unique()
     num_batches = len(batches)
     cols = 2 if num_batches > 1 else 1
     rows = math.ceil(num_batches / 2)
@@ -288,8 +279,8 @@ def plot_umap_HTOs_singlets(mudata, save_dir):
     # -- 4) For each batch, do PCA + UMAP
     for i, batch in enumerate(batches):
         ax = axes[i]
-        batch_mask = demux_s.obs['batch'] == batch
-        batch_data = demux_s.X[batch_mask]
+        batch_mask = hashing_demux.obs['batch'] == batch
+        batch_data = hashing_demux.X[batch_mask]
 
         # Limit PCA components for this batch
         n_samples = batch_data.shape[0]
@@ -312,14 +303,14 @@ def plot_umap_HTOs_singlets(mudata, save_dir):
         umap_result = umap_model.fit_transform(pca_result)
 
         # Store coordinates in obs (for demonstration)
-        demux_s.obs.loc[batch_mask, 'UMAP1'] = umap_result[:, 0]
-        demux_s.obs.loc[batch_mask, 'UMAP2'] = umap_result[:, 1]
+        hashing_demux.obs.loc[batch_mask, 'UMAP1'] = umap_result[:, 0]
+        hashing_demux.obs.loc[batch_mask, 'UMAP2'] = umap_result[:, 1]
 
         # -- 5) Scatter plot
         ax.scatter(
-            demux_s.obs.loc[batch_mask, 'UMAP1'],
-            demux_s.obs.loc[batch_mask, 'UMAP2'],
-            c=demux_s.obs.loc[batch_mask, 'hto_color'],
+            hashing_demux.obs.loc[batch_mask, 'UMAP1'],
+            hashing_demux.obs.loc[batch_mask, 'UMAP2'],
+            c=hashing_demux.obs.loc[batch_mask, 'hto_color'],
             alpha=0.7,
             s=1
         )
@@ -335,9 +326,7 @@ def plot_umap_HTOs_singlets(mudata, save_dir):
         fig.delaxes(axes[j])
 
     # -- 7) Add a legend on the right
-    handles = [plt.Line2D([0], [0], marker='o', color=hto_color_map[k], 
-                           markersize=8, linestyle='None') 
-               for k in unique_hto_types]
+    handles = [plt.Line2D([0], [0], marker='o', color=hto_color_map[k], markersize=8, linestyle='None') for k in unique_hto_types]
     fig.legend(
         handles, 
         [str(k) for k in unique_hto_types], 
@@ -357,16 +346,16 @@ def plot_umap_HTOs_singlets(mudata, save_dir):
 def main():
     parser = argparse.ArgumentParser(description="Generate various plots from MuData")
     parser.add_argument('--mudata', required=True, help='Path to the mudata object')
-    parser.add_argument('--hashing_ann', required=True, help='Path to the hashing anndata file')
     parser.add_argument('--hashing_demux', required=True, help='Path to the hashing demux anndata file')
+    parser.add_argument('--unfiltered_hashing_demux', required=True, help='Path to the unfiltered hashing demux anndata file')
     parser.add_argument('--output_dir', required=True, help='Directory where plots will be saved')
 
     args = parser.parse_args()
 
     # Load mudata
     mudata = mu.read_h5mu(args.mudata)
-    hashing_ann = ad.read_h5ad(args.hashing_ann)
     hashing_demux = ad.read_h5ad(args.hashing_demux)
+    unfiltered_hashing_demux = ad.read_h5ad(args.unfiltered_hashing_demux)
     os.makedirs(args.output_dir, exist_ok=True)
 
     # Generate all plots
@@ -376,9 +365,9 @@ def main():
     plot_sgRNA_frequencies(mudata, args.output_dir)
     plot_guides_per_cell(mudata, args.output_dir)
     plot_cells_per_guide(mudata, args.output_dir)
-    plot_cell_counts_HTOs(hashing_ann, hashing_demux, args.output_dir)
-    plot_umap_HTOs(mudata, args.output_dir)
-    plot_umap_HTOs_singlets(mudata, args.output_dir)
+    plot_cell_counts_HTOs(unfiltered_hashing_demux, args.output_dir)
+    plot_umap_HTOs(unfiltered_hashing_demux, args.output_dir)
+    plot_umap_HTOs_singlets(hashing_demux, args.output_dir)
 
 if __name__ == "__main__":
     main()

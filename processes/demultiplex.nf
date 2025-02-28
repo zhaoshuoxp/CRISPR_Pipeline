@@ -8,7 +8,9 @@ process demultiplex{
     each adata_path
 
     output:
-    path "*_demux.h5ad", emit: hashing_demux_anndata
+    path "*_hashing_filtered_demux.h5ad", emit: hashing_demux_anndata
+    path "*_hashing_unfiltered_demux.h5ad", emit: hashing_demux_unfiltered_anndata
+
 
     script:
     """
@@ -22,6 +24,6 @@ process demultiplex{
         GMM-demux demuxfile/ \$hto_string -f FULL
     )
 
-    demultiplex_filter.py --adata ${adata_path} --demux_report FULL/GMM_full.csv --demux_config FULL/GMM_full.config -o \${adata_name}_demux.h5ad
+    demultiplex_filter.py --adata ${adata_path} --demux_report FULL/GMM_full.csv --demux_config FULL/GMM_full.config --filtered_output \${adata_name}_hashing_filtered_demux.h5ad --unfiltered_output \${adata_name}_hashing_unfiltered_demux.h5ad 
     """
 }

@@ -4,24 +4,17 @@ A comprehensive pipeline for single-cell Perturb-Seq analysis that enables robus
 
 ## Prerequisites
 
-The following dependencies must be installed before running the pipeline:
+Nextflow and Singularity must be installed before running the pipeline:
 
 ### Nextflow
 Workflow manager for executing the pipeline:
 ```bash
 conda install bioconda::nextflow
 ```
-
-### Mamba
-Fast package manager for dependency resolution:
-```bash
-conda install conda-forge::mamba
-```
-
 ### Singularity
 Container platform that must be available in your execution environment.
 
-## Installation
+## Pipeline Installation
 
 To install the pipeline:
 
@@ -56,16 +49,17 @@ This pipeline requires a specific data structure to function properly. Below is 
    ├── 📁 fastq_files/
    │   ├── 📄 {sample}_R1.fastq.gz
    │   └── 📄 {sample}_R2.fastq.gz
+   │   └── 📄 ...
    │
    ├── 📁 yaml_files/
    │   ├── 📄 rna_seqspec.yml
    │   ├── 📄 guide_seqspec.yml
-   │   ├── 📄 hash_seqspec.yml
+   │   ├── 📄 hash_seqspec.yml (required if using cell hashing)
    │   └── 📄 whitelist.txt
    │
    ├── 📄 guide_metadata.tsv
-   ├── 📄 hash_metadata.tsv
-   └── 📄 pairs_to_test.csv
+   ├── 📄 hash_metadata.tsv (required if using cell hashing)
+   └── 📄 pairs_to_test.csv (required if testing predefined pairs)
 ```
 
 For detailed specifications, see our [documentation](https://docs.google.com/document/d/1Z1SOlekIE5uGyXW41XxnszxaYdSw0wdAOUVzfy3fj3M/edit?tab=t.0#heading=h.ctbx1w9hj619).
@@ -111,8 +105,6 @@ withName:process_name {
 #### Common Issues and Solutions
 - **Memory errors**: Increase the `memory` parameter in `input.config`
 - **Missing files**: Double-check paths in `configs/pipeline.config` and actual files in `example_data`
-
-Need help? Check our documentation or raise an issue on GitHub.
 
 ## Output Description
 

@@ -6,8 +6,9 @@ A comprehensive pipeline for single-cell Perturb-Seq analysis that enables robus
 
 Nextflow and Singularity must be installed before running the pipeline:
 
-### Nextflow
+### Nextflow (version > 24)
 Workflow manager for executing the pipeline:
+
 ```bash
 conda install bioconda::nextflow
 ```

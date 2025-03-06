@@ -16,11 +16,6 @@ def main(adata_rna, adata_guide, guide_metadata, gtf, moi):
     adata_guide = ad.read_h5ad(adata_guide)
     df_gtf = read_gtf(gtf).to_pandas()
 
-    # add targeting_chr, start, end to intended_target_name elements
-    gene_map_df = df_gtf.groupby('gene_name').first()[['seqname', 'start', 'end']]
-    guide_metadata = guide_metadata.merge(gene_map_df, how='left', left_on='intended_target_name', right_index=True)
-    guide_metadata = guide_metadata.rename(columns={'seqname': 'intended_target_chr', 'start': 'intended_target_start', 'end': 'intended_target_end'})
-
     ## change in adata_guide
     # adding var for guide
     adata_guide.var.reset_index(inplace=True)

@@ -194,45 +194,41 @@ def main():
        
        # Create separate plots for each method
        for method in available_methods:
-           print(f"\nGenerating plot for {method}...") 
-
-   # Create separate plots for each method
-   for method in available_methods:
-       print(f"\nGenerating plot for {method}...")
-       
-       method_nodes = select_central_nodes(mdata, args.num_nodes, args.source_column, args.target_column, method, args.min_weight)
-       
-       fig = plt.figure(figsize=(30, 15))
-       
-       if method_nodes:
-           num_rows = (len(method_nodes) + 1) // 2
-           for i, central_node in enumerate(method_nodes):
-               ax = fig.add_subplot(num_rows, 2, i + 1)
-               plot_network(
-                   mdata,
-                   central_node=central_node,
-                   method=method,
-                   source_column=args.source_column,
-                   target_column=args.target_column,
-                   min_weight=args.min_weight,
-                   results_key=args.results_key,
-                   ax=ax
-               )
-       else:
-           # Create a single blank subplot with a message
-           ax = fig.add_subplot(1, 1, 1)
-           ax.text(0.5, 0.5, f"No nodes available for {method}\nwith min_weight={args.min_weight}",
-                  horizontalalignment='center',
-                  verticalalignment='center',
-                  transform=ax.transAxes,
-                  fontsize=14)
-           ax.set_axis_off()
-       
-       plt.tight_layout()
-       output_file = os.path.join(output_dir, f"{method}_network_plot.png")
-       plt.savefig(output_file, dpi=300, bbox_inches='tight')
-       plt.close()
-       print(f"Saved {method} plots to {output_file}")
+           print(f"\nGenerating plot for {method}...")
+           
+           method_nodes = select_central_nodes(mdata, args.num_nodes, args.source_column, args.target_column, method, args.min_weight)
+           
+           fig = plt.figure(figsize=(30, 15))
+           
+           if method_nodes:
+               num_rows = (len(method_nodes) + 1) // 2
+               for i, central_node in enumerate(method_nodes):
+                   ax = fig.add_subplot(num_rows, 2, i + 1)
+                   plot_network(
+                       mdata,
+                       central_node=central_node,
+                       method=method,
+                       source_column=args.source_column,
+                       target_column=args.target_column,
+                       min_weight=args.min_weight,
+                       results_key=args.results_key,
+                       ax=ax
+                   )
+           else:
+               # Create a single blank subplot with a message
+               ax = fig.add_subplot(1, 1, 1)
+               ax.text(0.5, 0.5, f"No nodes available for {method}\nwith min_weight={args.min_weight}",
+                      horizontalalignment='center',
+                      verticalalignment='center',
+                      transform=ax.transAxes,
+                      fontsize=14)
+               ax.set_axis_off()
+           
+           plt.tight_layout()
+           output_file = os.path.join(output_dir, f"{method}_network_plot.png")
+           plt.savefig(output_file, dpi=300, bbox_inches='tight')
+           plt.close()
+           print(f"Saved {method} plots to {output_file}")
 
    print("All plots generated successfully")
 

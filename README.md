@@ -15,6 +15,26 @@ conda install bioconda::nextflow
 ### Singularity
 Container platform that must be available in your execution environment.
 
+### Nextflow Tower Integration
+This is a seamless pipeline execution monitoring system that offers a web-based interface for workflow management.
+
+To enable Nextflow Tower, we require a TOWER_ACCESS_TOKEN.
+
+To obtain your token:
+1. Create/login to your account at cloud.tower.nf
+2. Navigate to Settings > Your tokens
+3. Click "Add token" and generate a new token
+4. Set as environment variable: `export TOWER_ACCESS_TOKEN=your_token_here`
+
+If you do not want this feature, go to the input.config and scroll all the way down to disable this:
+```
+tower {
+    enabled = false
+    accessToken = "${TOWER_ACCESS_TOKEN ?: ''}"
+}
+```
+
+
 ## Pipeline Installation
 
 To install the pipeline:
@@ -91,8 +111,12 @@ withName:process_name {
    ```bash
    chmod +x bin/*
    ```
+2. Export Nextflow Tower Token
+   ```bash
+   export TOWER_ACCESS_TOKEN=your_token_here
+   ```
 
-2. Launch the pipeline:
+3. Launch the pipeline:
    ```bash
    nextflow run main.nf -c input.config
    ```

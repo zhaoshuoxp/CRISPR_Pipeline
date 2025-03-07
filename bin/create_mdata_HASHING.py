@@ -47,8 +47,8 @@ def main(adata_rna, adata_guide, adata_hashing, guide_metadata, gtf, moi):
         calculated_moi = 'high' if avg_guides_per_cell > 1.5 else 'low'
         adata_guide.uns['moi'] = np.array([calculated_moi], dtype=object)
     
-    print(f"Average guides per cell: {avg_guides_per_cell:.2f}")
-    print(f"MOI status: {calculated_moi}")
+        print(f"Average guides per cell: {avg_guides_per_cell:.2f}")
+        print(f"MOI status: {calculated_moi}")
 
     # adding number of nonzero guides and batch number
     adata_guide.obs['num_expressed_guides'] = (adata_guide.X > 0).sum(axis=1)

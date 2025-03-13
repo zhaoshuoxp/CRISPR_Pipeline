@@ -72,7 +72,8 @@ workflow process_mudata_pipeline_HASHING {
         Hashing_Concat.concatenated_hashing_demux,
         file(params.guide_metadata),
         GTF_Reference.gencode_gtf,
-        params.moi
+        params.moi,
+        params.capture_method
         )
         
     if (params.assignment_method == "cleanser") {

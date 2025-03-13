@@ -11,6 +11,7 @@ process CreateMuData_HASHING {
   path guide_metadata
   path gtf_file
   val moi
+  val capture_method
 
   output:
   path "mudata.h5mu" , emit: mudata
@@ -18,7 +19,7 @@ process CreateMuData_HASHING {
   
   script:
         """
-        create_mdata_HASHING.py ${adata_rna} ${adata_guide} ${adata_hashing} ${guide_metadata} ${gtf_file} ${moi}
+        create_mdata_HASHING.py ${adata_rna} ${adata_guide} ${adata_hashing} ${guide_metadata} ${gtf_file} ${moi} ${capture_method}
         mv concatenated_adata.h5ad guide_concatenated_adata.h5ad
         """
 

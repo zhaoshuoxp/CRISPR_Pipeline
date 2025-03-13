@@ -9,7 +9,7 @@ from gtfparse import read_gtf
 import matplotlib.pyplot as plt
 import os
 
-def main(adata_rna, adata_guide, guide_metadata, gtf, moi):
+def main(adata_rna, adata_guide, guide_metadata, gtf, moi, capture_method):
     # Load the data
     guide_metadata = pd.read_csv(guide_metadata, sep='\t')
     adata_rna = ad.read_h5ad(adata_rna)
@@ -34,7 +34,7 @@ def main(adata_rna, adata_guide, guide_metadata, gtf, moi):
     adata_guide.var_names = guide_metadata['feature_id']
     
     # adding uns for guide 
-    adata_guide.uns['capture_method'] = np.array(['CROP-seq'], dtype=object)
+    adata_guide.uns['capture_method'] = np.array([capture_method], dtype=object)
     # calculate moi
     if moi in ['high', 'low']:
         adata_guide.uns['moi'] = np.array([moi], dtype=object)
@@ -62,7 +62,7 @@ def main(adata_rna, adata_guide, guide_metadata, gtf, moi):
     adata_rna.var = adata_rna.var.join(df_gtf_copy[['seqname', 'start', 'end']].rename(columns={'seqname': 'gene_chr', 
                                                                                             'start': 'gene_start', 
                                                                                             'end': 'gene_end'}))
- 
+
     # rename adata_rna obs
     adata_rna.obs.rename(columns={'n_genes_by_counts': 'n_counts',
                                 'pct_counts_mt': 'percent_mito',
@@ -94,7 +94,7 @@ def main(adata_rna, adata_guide, guide_metadata, gtf, moi):
 
     # Find the intersection of barcodes between scRNA and guide data
     intersecting_barcodes = list(set(adata_rna.obs_names)
-                                 .intersection(adata_guide.obs_names))
+                                .intersection(adata_guide.obs_names))
 
     mdata = MuData({
         'gene': adata_rna[intersecting_barcodes, :].copy(),
@@ -114,7 +114,8 @@ if __name__ == "__main__":
     parser.add_argument('guide_metadata', type=str, help='Path to the guide metadata tsv file.')
     parser.add_argument('gtf', type=str, help='Path to the GTF file.')
     parser.add_argument('moi', default='', help='Multiplicity of infection (MOI) of the screen.')
+    parser.add_argument('capture_method', default='', help='Capture Method.')
     
 
     args = parser.parse_args()
-    main(args.adata_rna, args.adata_guide, args.guide_metadata, args.gtf, args.moi)
+    main(args.adata_rna, args.adata_guide, args.guide_metadata, args.gtf, args.moi, args.capture_method)

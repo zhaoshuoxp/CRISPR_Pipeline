@@ -48,7 +48,8 @@ workflow process_mudata_pipeline {
         concat_anndata_guide, 
         file(params.guide_metadata),
         GTF_Reference.gencode_gtf,
-        params.moi
+        params.moi,
+        params.capture_method
         )
 
     MuData_Doublets = doublets_scrub(MuData.mudata) 

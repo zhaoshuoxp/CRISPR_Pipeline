@@ -4,11 +4,16 @@ import argparse
 import pandas as pd
 import mudata as mu
 import numpy as np
+from scipy import sparse
+import time
 
 def export_output(mudata, inference_method):
     """
     Generate per-guide and per-element outputs from MuData and save as TSV files.
+    Optimized for performance.
     """
+    start_time = time.time()
+    
     # Check if test_results exists in uns
     if 'test_results' not in mudata.uns:
         print("Warning: No test results found in mudata.uns")
@@ -29,50 +34,76 @@ def export_output(mudata, inference_method):
     if inference_method not in col_map:
         raise ValueError("Invalid inference_method. Must be 'sceptre' or 'perturbo'.")
 
+    print("Processing data...")
     try:
-        # merge with guide data
-        per_guide_output = test_results.merge(
-            mudata.mod['guide'].var.reset_index(),
+        # Merge with guide data 
+        guide_var_df = mudata.mod['guide'].var.reset_index()
+        
+        per_guide_output = pd.merge(
+            test_results,
+            guide_var_df,
             how='left',
             on=['intended_target_name', 'guide_id']
         )
 
-        # Calculate average gene expression 
-        try:  
-            avg_expressions = []
-            for _, row in per_guide_output.iterrows():  # Use per_guide_output instead of test_results
-                target = row['intended_target_name']
-                mask = mudata.mod['gene'].var['symbol'] == target
-                if mask.any():
-                    mask_array = mask.to_numpy()
-                    gene_data = mudata.mod['gene'].X[:, mask_array]
-                    if isinstance(gene_data, np.ndarray):
-                        avg_exp = np.mean(gene_data)
-                    else:  # Sparse matrix
-                        avg_exp = np.mean(gene_data.toarray())
+        # Pre-extract gene expression matrix and symbol array for faster lookup
+        print("Preparing gene expression data...")
+        gene_X = mudata.mod['gene'].X
+        gene_symbols = mudata.mod['gene'].var['symbol'].values
+        
+        # Convert to array once if sparse 
+        is_sparse = sparse.issparse(gene_X)
+        if is_sparse:
+            print("Gene expression matrix is sparse, optimizing calculations...")
+        
+        # Create a mapping from gene symbol to column index for fast lookup
+        symbol_to_idx = {}
+        for idx, symbol in enumerate(gene_symbols):
+            if symbol in symbol_to_idx:
+                symbol_to_idx[symbol].append(idx)
+            else:
+                symbol_to_idx[symbol] = [idx]
+        
+        # OPTIMIZATION: Calculate average gene expression vectorized where possible
+        print("Calculating average gene expression...")
+        unique_targets = per_guide_output['intended_target_name'].unique()
+        target_to_avg_exp = {}
+        
+        for target in unique_targets:
+            if target in symbol_to_idx:
+                col_indices = symbol_to_idx[target]
+                if len(col_indices) > 0:
+                    if is_sparse:
+                        # Extract only the columns we need
+                        subset = gene_X[:, col_indices]
+                        avg_exp = subset.mean()
+                    else:
+                        avg_exp = np.mean(gene_X[:, col_indices])
                 else:
                     avg_exp = np.nan
-                avg_expressions.append(avg_exp)
-            
-            print(f"Length of avg_expressions: {len(avg_expressions)}")
-            per_guide_output['avg_gene_expression'] = avg_expressions
+            else:
+                avg_exp = np.nan
+            target_to_avg_exp[target] = avg_exp
+        
+        # Map the averages back to the dataframe
+        per_guide_output['avg_gene_expression'] = per_guide_output['intended_target_name'].map(target_to_avg_exp)
 
-        except Exception as e:
-            print(f"Error calculating average expression: {str(e)}")
-            print(f"Shape of gene expression matrix: {mudata.mod['gene'].X.shape}")
-            raise
-
-        # Add columns
+        # Add cell number column
         per_guide_output['cell_number'] = mudata.shape[0]
-        per_guide_output['avg_gene_expression'] = avg_expressions
 
         # Rename columns based on inference method
         per_guide_output = per_guide_output.rename(columns=col_map[inference_method])
 
-        # Add missing inference method columns
-        for col in ['sceptre_log2_fc', 'sceptre_p_value', 'perturbo_log2_fc', 'perturbo_p_value']:
+        # OPTIMIZATION: Add missing inference method columns all at once
+        missing_cols = {
+            'sceptre_log2_fc': None, 
+            'sceptre_p_value': None, 
+            'perturbo_log2_fc': None, 
+            'perturbo_p_value': None
+        }
+        for col, default in missing_cols.items():
             if col not in per_guide_output.columns:
-                per_guide_output[col] = None
+                per_guide_output[col] = default
 
         # Reorder and rename columns
         final_cols = [
@@ -85,15 +116,27 @@ def export_output(mudata, inference_method):
         per_guide_output = per_guide_output[final_cols].rename(columns={'guide_id': 'guide_id(s)'})
 
         # Generate per-element output
-        per_element_output = (
-            per_guide_output.groupby('gene_id', as_index=False)
-            .agg({'guide_id(s)': lambda x: ','.join(x.dropna().astype(str))})
-            .merge(
-                per_guide_output.drop_duplicates('gene_id')
-                .drop(columns=['guide_id(s)']),
-                on='gene_id',
-                how='left'
-            )
+        print("Generating per-element output...")
+        
+        # OPTIMIZATION: Faster groupby approach
+        # First, create a mapping of gene_id to concatenated guide_ids
+        guide_id_map = per_guide_output.groupby('gene_id')['guide_id(s)'].apply(
+            lambda x: ','.join(x.dropna().astype(str))
+        ).to_dict()
+        
+        # Then, get one row per gene_id as a template
+        per_element_template = per_guide_output.drop_duplicates('gene_id').drop(columns=['guide_id(s)'])
+        
+        # Create per-element dataframe
+        per_element_output = pd.DataFrame({'gene_id': list(guide_id_map.keys())})
+        per_element_output['guide_id(s)'] = per_element_output['gene_id'].map(guide_id_map)
+        
+        # Merge with template
+        per_element_output = pd.merge(
+            per_element_output,
+            per_element_template,
+            on='gene_id',
+            how='left'
         )
 
         column_order = [
@@ -112,10 +155,14 @@ def export_output(mudata, inference_method):
         ]
 
         per_element_output = per_element_output[column_order]
-        # Save outputs with error handling
+        
+        # Save outputs
+        print("Saving output files...")
         per_guide_output.to_csv('per_guide_output.tsv', sep='\t', index=False)
         per_element_output.to_csv('per_element_output.tsv', sep='\t', index=False)
-        print("Exported output files successfully.")
+        
+        end_time = time.time()
+        print(f"Exported output files successfully in {end_time - start_time:.2f} seconds.")
         
     except Exception as e:
         print(f"Error during export: {str(e)}")
@@ -128,7 +175,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     try:
+        print(f"Loading MuData file from {args.mudata}...")
+        start_time = time.time()
         mudata = mu.read_h5mu(args.mudata)
+        load_time = time.time() - start_time
+        print(f"MuData loaded in {load_time:.2f} seconds.")
+        
         export_output(mudata, args.inference_method)
     except Exception as e:
         print(f"Error loading or processing MuData file: {str(e)}")

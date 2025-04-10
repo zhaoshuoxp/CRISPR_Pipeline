@@ -97,12 +97,6 @@ Make sure to specify your data paths and analysis parameters in `configs/pipelin
 
 Configure `input.config` to match your computing environment. For example:
 
-```bash
-withName:process_name {
-   cpus = 4               # Number of CPU cores per mapping process (default: 4)
-   memory = 64.GB         # RAM allocation per mapping process (default: 64GB)
-}
-```
 💡 **Note:** Start with these default values and adjust based on your dataset size and system capabilities.
 
 ### Running the Pipeline
@@ -111,7 +105,7 @@ withName:process_name {
    ```bash
    chmod +x bin/*
    ```
-2. Export Nextflow Tower Token
+2. Export Nextflow Tower Token (if Nextflow Tower is enabled)
    ```bash
    export TOWER_ACCESS_TOKEN=your_token_here
    ```

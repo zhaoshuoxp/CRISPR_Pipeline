@@ -16,14 +16,10 @@ def main(guide_inference, mudata_path):
         raise KeyError("Mudata file is missing 'gene' or 'guide' modality.")
     
     # Debugging: Print basic information about the input data
-    print(f"Guide inference data contains {len(guide_inference)} rows.")
-    print(f"Mudata 'gene' modality contains {mudata.mod['gene'].shape[0]} genes.")
-    print(f"Mudata 'guide' modality contains {mudata.mod['guide'].shape[0]} guides.")
+    print(f"Tested pairs dataset contains {len(guide_inference)} rows.")
+    print(f"Mudata 'gene' modality contains {mudata.mod['gene'].shape[1]} genes.")
+    print(f"Mudata 'guide' modality contains {mudata.mod['guide'].shape[1]} guides.")
     
-    # adding 'pairs_to_test' to mudata uns
-    ## remove the gene_id that is not included in the mudata
-    # mudata.mod['gene'].var['symbol_new'] = mudata.mod['gene'].var['symbol'].str.split('.').str[0]
-    # mudata.mod['gene'].var.index = mudata.mod['gene'].var['symbol_new']
     gene_var = mudata.mod['gene'].var.index if mudata.mod['gene'].var.index is not None else []
     guide_var = mudata.mod['guide'].var['guide_id'] if mudata.mod['guide'] is not None else []
 

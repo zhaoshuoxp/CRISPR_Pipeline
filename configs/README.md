@@ -34,6 +34,7 @@ This document explains the configuration parameters for the single-cell RNA sequ
 
 ### Guide Assignment Configuration
 - `assignment_method`: Method for guide-cell assignment ('sceptre' or 'cleanser')
+- `capture_method`: Capture Method ('direct capture' or 'CROP-seq')
 - `THRESHOLD`: Numerical threshold for assignments (default: 1)
 
 ### Perturbation Inference Configuration
@@ -48,7 +49,7 @@ This document explains the configuration parameters for the single-cell RNA sequ
 - `distance_from_center`: Distance threshold for the 'by_distance' strategy to select targets for pairs_to_test (default: 1,000,000)
 
 The following parameters apply to sceptre and can be adjusted accordingly:
-- `moi`: Multiplicity of infection setting ('undecided')
+- `moi`: Multiplicity of infection setting ('undecided', 'high' or 'low')
 - `side`: Direction of statistical tests ('both')
 - `grna_integration_strategy`: Strategy for combining guide information ('union')
 - `resampling_approximation`: Distribution for resampling ('skew_normal')
